@@ -16,6 +16,8 @@ def create_parser() -> argparse.ArgumentParser:
     parser.add_argument('-i', '--id', type=int, action='append', help='give instance id', dest='ins_id')
     parser.add_argument('-j', '--json', help='give instance json-format information', dest='ins_json')
     parser.add_argument('-u', '--url', help='give SSR sharing URL', dest='ssr_url')
+    parser.add_argument('-c', '--current', action='store_true', default=False,
+                        help='show currently-used configuration for SSR')
     return parser
 
 

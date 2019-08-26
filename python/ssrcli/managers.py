@@ -141,6 +141,11 @@ class SsrConfManager(Manager):
         with open(config.SSR_CONF_PATH, 'w') as file:
             file.write(json.dumps(json_config, indent=2, ensure_ascii=False))
 
+    @staticmethod
+    def load_use() -> str:
+        with open(config.SSR_CONF_PATH, 'r') as file:
+            return file.read()
+
 
 async def _update_sub(url: str, pk: Optional[int] = None) -> UpdateResult:
     content = requests.get(url).content.decode('utf-8').strip()
@@ -187,6 +192,9 @@ def take_action(param_dict: Dict[str, Param]) -> None:
             id_list = param_dict.get('ins_id', None) if param_dict['all'] else None
             for ins in manager.list(id_list):
                 print(ins)
+            if param_dict['current']:
+                print('\nCurrently-used configuration is:')
+                print(manager.load_use())
 
         elif action == 'add':
             if model == SsrConf:
