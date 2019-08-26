@@ -27,4 +27,6 @@ def test_to_ssr_url():
 
 
 def test_conf_to_json():
-    assert conf_to_json(SsrConf(**SSR_CONF['info'])) == SSR_CONF['json']
+    temp_ssr_conf = SSR_CONF['json'].copy()
+    temp_ssr_conf['_meta']['id'] = None  # As the instance has not been saved, it does not have id field
+    assert conf_to_json(SsrConf(**SSR_CONF['info'])) == temp_ssr_conf

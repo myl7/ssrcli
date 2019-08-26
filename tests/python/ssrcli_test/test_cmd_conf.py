@@ -87,3 +87,11 @@ def test_take_conf():
     subprocess.run(CMD_PREFIX + ['conf', 'take', '-i', '1'], env=VENV_ENV)
     with open('config.json', 'r') as file:
         assert json.load(file) == {**SSR_CONF['json'], **config.SSR_CONF_EXTRA_FIELDS}
+
+
+@init_conf_table
+def test_list_used_conf():
+    subprocess.run(CMD_PREFIX + ['conf', 'add', '-j', json.dumps(SSR_CONF['info'])], env=VENV_ENV)
+    subprocess.run(CMD_PREFIX + ['conf', 'take', '-i', '1'], env=VENV_ENV)
+    process = subprocess.run(CMD_PREFIX + ['conf', 'ls', '-a', '-c'], capture_output=True, env=VENV_ENV)
+    assert '"remarks": "test"' in process.stdout.decode('utf-8')

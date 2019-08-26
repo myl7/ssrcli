@@ -28,7 +28,13 @@ SSR_CONF = {
         'password': 'test',
         'obfs_param': '',
         'protocol_param': '',
-    }
+        '_meta': {
+            'id': 1,
+            'remarks': 'test',
+            'group': 'test',
+            'sub': None,
+        },
+    },
 }
 
 CMD_PREFIX = ['python3', '-m', 'ssrcli.cmd']

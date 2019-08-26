@@ -50,10 +50,9 @@ def to_ssr_url(ssr_conf: SsrConf) -> str:
         'remarks': b64_encode_ssr(ssr_conf.remarks),
         'group': b64_encode_ssr(ssr_conf.group),
     }
-    return 'ssr://' + b64_encode_ssr((
+    return 'ssr://' + b64_encode_ssr(
         '{server}:{server_port}:{protocol}:{method}:{obfs}:{password}/?'
-        'obfsparam={obfs_param}&protoparam={protocol_param}&remarks={remarks}&group={group}'
-    ).format(**info))
+        'obfsparam={obfs_param}&protoparam={protocol_param}&remarks={remarks}&group={group}'.format(**info))
 
 
 def from_ssr_url(ssr_url: str) -> Dict[str, str]:
@@ -92,6 +91,12 @@ def conf_to_json(conf: SsrConf) -> Dict[str, Union[str, int]]:
         'password': conf.password,
         'obfs_param': conf.obfs_param,
         'protocol_param': conf.protocol_param,
+        '_meta': {
+            'id': conf.id,
+            'remarks': conf.remarks,
+            'group': conf.group,
+            'sub': conf.sub.id if conf.sub else None,
+        },
     }
 
 
@@ -104,10 +109,10 @@ class Manager:
     model = None  # type: Type[Models]
 
     def list(self, id_list: Optional[List[int]]) -> Iterable[Models]:
-        if id_list:
-            return self.model.select().where(self.model.id.in_(id_list))
-        else:
+        if id_list is None:
             return self.model.select()
+        else:
+            return self.model.select().where(self.model.id.in_(id_list))
 
     def create(self, **kwargs: Param) -> Models:
         return self.model.create(**kwargs)
@@ -136,6 +141,11 @@ class SsrConfManager(Manager):
         with open(config.SSR_CONF_PATH, 'w') as file:
             file.write(json.dumps(json_config, indent=2, ensure_ascii=False))
 
+    @staticmethod
+    def load_use() -> str:
+        with open(config.SSR_CONF_PATH, 'r') as file:
+            return file.read()
+
 
 async def _update_sub(url: str, pk: Optional[int] = None) -> UpdateResult:
     content = requests.get(url).content.decode('utf-8').strip()
@@ -154,10 +164,10 @@ class SsrSubManager(Manager):
             SsrConf.create(**info, sub=instance)
 
     def update(self, id_list: Optional[List[int]]) -> None:
-        if id_list:
-            ins_dict = {ins.id: ins for ins in SsrSub.select().where(SsrSub.id.in_(id_list))}
-        else:
+        if id_list is None:
             ins_dict = {ins.id: ins for ins in SsrSub.select()}
+        else:
+            ins_dict = {ins.id: ins for ins in SsrSub.select().where(SsrSub.id.in_(id_list))}
         tasks = [_update_sub(ins.url, ins.id) for ins in ins_dict.values()]
         results = asyncio.get_event_loop().run_until_complete(asyncio.gather(*tasks))
         for result in results:
@@ -182,6 +192,9 @@ def take_action(param_dict: Dict[str, Param]) -> None:
             id_list = param_dict.get('ins_id', None) if param_dict['all'] else None
             for ins in manager.list(id_list):
                 print(ins)
+            if param_dict['current']:
+                print('\nCurrently-used configuration is:')
+                print(manager.load_use())
 
         elif action == 'add':
             if model == SsrConf:
