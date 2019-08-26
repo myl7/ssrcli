@@ -11,6 +11,11 @@ SSR_SUB = {
     'url': 'http://127.0.0.1:8000/',
 }
 
+LOCAL_SSR_SUB = {
+    'name': 'local test',
+    'url': 'http://127.0.0.1:8001/index.txt',
+}
+
 
 def init_sub_table(func: Callable[[], None]) -> Callable[[], None]:
     def wrapper():
@@ -68,9 +73,20 @@ def test_delete_sub():
 
 @init_sub_table
 def test_update_some_sub():
-    pass
+    subprocess.run(CMD_PREFIX + ['sub', 'add', '-j', json.dumps(LOCAL_SSR_SUB)], env=VENV_ENV)
+    subprocess.run(CMD_PREFIX + ['sub', 'update', '-i', '1'], env=VENV_ENV)
+    cursor = db.cursor()
+    query_result = cursor.execute("SELECT server, server_port FROM ssrconf WHERE sub_id = 1").fetchone()
+    assert query_result == ('::1', 30000)
 
 
 @init_sub_table
 def test_update_all_sub():
-    pass
+    subprocess.run(CMD_PREFIX + ['sub', 'add', '-j', json.dumps(LOCAL_SSR_SUB)], env=VENV_ENV)
+    subprocess.run(CMD_PREFIX + ['sub', 'add', '-j', json.dumps(LOCAL_SSR_SUB)], env=VENV_ENV)
+    subprocess.run(CMD_PREFIX + ['sub', 'update'], env=VENV_ENV)
+    cursor = db.cursor()
+    query_result = cursor.execute("SELECT server, server_port FROM ssrconf WHERE sub_id = 1").fetchone()
+    assert query_result == ('::1', 30000)
+    query_result = cursor.execute("SELECT server, server_port FROM ssrconf WHERE sub_id = 2").fetchone()
+    assert query_result == ('::1', 30000)
