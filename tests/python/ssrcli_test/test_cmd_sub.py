@@ -58,6 +58,14 @@ def test_list_all_sub():
 
 
 @init_sub_table
+def test_list_all_sub_with_a():
+    subprocess.run(CMD_PREFIX + ['sub', 'add', '-j', json.dumps(SSR_SUB)], env=VENV_ENV)
+    subprocess.run(CMD_PREFIX + ['sub', 'add', '-j', json.dumps(SSR_SUB)], env=VENV_ENV)
+    process = subprocess.run(CMD_PREFIX + ['sub', 'ls', '-a'], capture_output=True, env=VENV_ENV)
+    assert process.stdout.decode('utf-8').count('name: test') >= 2
+
+
+@init_sub_table
 def test_edit_sub():
     pass  # TODO(myl7): Not implement
 
@@ -69,6 +77,25 @@ def test_delete_sub():
     cursor = db.cursor()
     query_result = cursor.execute("SELECT COUNT(id) FROM ssrsub WHERE name = 'test'").fetchone()
     assert query_result[0] == 0
+
+
+@init_sub_table
+def test_delete_all_sub():
+    subprocess.run(CMD_PREFIX + ['sub', 'add', '-j', json.dumps(SSR_SUB)], env=VENV_ENV)
+    subprocess.run(CMD_PREFIX + ['sub', 'add', '-j', json.dumps(SSR_SUB)], env=VENV_ENV)
+    subprocess.run(CMD_PREFIX + ['sub', 'rm', '-a'], env=VENV_ENV)
+    cursor = db.cursor()
+    query_result = cursor.execute("SELECT COUNT(id) FROM ssrsub WHERE name = 'test'").fetchone()
+    assert query_result[0] == 0
+
+
+@init_sub_table
+def test_delete_sub_without_info():
+    subprocess.run(CMD_PREFIX + ['sub', 'add', '-j', json.dumps(SSR_SUB)], env=VENV_ENV)
+    subprocess.run(CMD_PREFIX + ['sub', 'rm'], env=VENV_ENV)
+    cursor = db.cursor()
+    query_result = cursor.execute("SELECT COUNT(id) FROM ssrsub WHERE name = 'test'").fetchone()
+    assert query_result[0] == 1
 
 
 @init_sub_table
@@ -85,6 +112,18 @@ def test_update_all_sub():
     subprocess.run(CMD_PREFIX + ['sub', 'add', '-j', json.dumps(LOCAL_SSR_SUB)], env=VENV_ENV)
     subprocess.run(CMD_PREFIX + ['sub', 'add', '-j', json.dumps(LOCAL_SSR_SUB)], env=VENV_ENV)
     subprocess.run(CMD_PREFIX + ['sub', 'update'], env=VENV_ENV)
+    cursor = db.cursor()
+    query_result = cursor.execute("SELECT server, server_port FROM ssrconf WHERE sub_id = 1").fetchone()
+    assert query_result == ('::1', 30000)
+    query_result = cursor.execute("SELECT server, server_port FROM ssrconf WHERE sub_id = 2").fetchone()
+    assert query_result == ('::1', 30000)
+
+
+@init_sub_table
+def test_update_all_sub_with_a():
+    subprocess.run(CMD_PREFIX + ['sub', 'add', '-j', json.dumps(LOCAL_SSR_SUB)], env=VENV_ENV)
+    subprocess.run(CMD_PREFIX + ['sub', 'add', '-j', json.dumps(LOCAL_SSR_SUB)], env=VENV_ENV)
+    subprocess.run(CMD_PREFIX + ['sub', 'update', '-a'], env=VENV_ENV)
     cursor = db.cursor()
     query_result = cursor.execute("SELECT server, server_port FROM ssrconf WHERE sub_id = 1").fetchone()
     assert query_result == ('::1', 30000)
