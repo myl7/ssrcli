@@ -112,9 +112,10 @@ class Manager:
     def create(self, **kwargs: Param) -> Models:
         return self.model.create(**kwargs)
 
-    def delete(self, pk: int) -> None:
-        instance = self.model.get(pk)
-        instance.delete_instance()
+    def delete(self, id_list: List[int]) -> None:
+        query = self.model.select().where(self.model.id.in_(id_list))
+        for ins in query:
+            ins.delete_instance()
 
     def edit(self, pk: int, **kwargs: Param) -> None:
         instance = self.model.get(pk)
@@ -149,18 +150,15 @@ class SsrSubManager(Manager):
         for info in result[0]:
             SsrConf.create(**info, sub=instance)
 
-    def update_one(self, pk: int) -> None:
-        instance = SsrSub.get(pk)
-        task = _update_sub(instance.url)
-        result = asyncio.get_event_loop().run_until_complete(task)
-        self._update_result(result, instance)
-
-    def update_all(self) -> None:
-        instances = [ins for ins in SsrSub.select().order_by(SsrSub.id.desc())]
-        tasks = [_update_sub(ins.url, ins.id) for ins in instances]
+    def update(self, id_list: Optional[List[int]]) -> None:
+        if id_list:
+            ins_dict = {ins.id: ins for ins in SsrSub.select().where(SsrSub.id.in_(id_list))}
+        else:
+            ins_dict = {ins.id: int for ins in SsrSub.select()}
+        tasks = [_update_sub(ins.url, ins.id) for ins in ins_dict.values()]
         results = asyncio.get_event_loop().run_until_complete(asyncio.gather(*tasks))
         for result in results:
-            self._update_result(result, instances[result[1] - 1])
+            self._update_result(result, ins_dict[result[1]])
 
 
 def take_action(param_dict: Dict[str, Param]) -> None:
