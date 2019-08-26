@@ -109,10 +109,10 @@ class Manager:
     model = None  # type: Type[Models]
 
     def list(self, id_list: Optional[List[int]]) -> Iterable[Models]:
-        if id_list:
-            return self.model.select().where(self.model.id.in_(id_list))
-        else:
+        if id_list is None:
             return self.model.select()
+        else:
+            return self.model.select().where(self.model.id.in_(id_list))
 
     def create(self, **kwargs: Param) -> Models:
         return self.model.create(**kwargs)
@@ -159,10 +159,10 @@ class SsrSubManager(Manager):
             SsrConf.create(**info, sub=instance)
 
     def update(self, id_list: Optional[List[int]]) -> None:
-        if id_list:
-            ins_dict = {ins.id: ins for ins in SsrSub.select().where(SsrSub.id.in_(id_list))}
-        else:
+        if id_list is None:
             ins_dict = {ins.id: ins for ins in SsrSub.select()}
+        else:
+            ins_dict = {ins.id: ins for ins in SsrSub.select().where(SsrSub.id.in_(id_list))}
         tasks = [_update_sub(ins.url, ins.id) for ins in ins_dict.values()]
         results = asyncio.get_event_loop().run_until_complete(asyncio.gather(*tasks))
         for result in results:
