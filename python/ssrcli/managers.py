@@ -1,9 +1,10 @@
 import base64
 import json
 import asyncio
-from typing import Iterator, Type, Union, Tuple, Optional, Dict, Iterable, List
+from typing import Iterator, Type, Union, Tuple, Optional, Dict, Iterable, List, AnyStr
 
 import requests
+from peewee import prefetch
 
 from .config import config
 from .models import SsrConf, SsrSub
@@ -95,7 +96,7 @@ def conf_to_json(conf: SsrConf) -> Dict[str, Union[str, int]]:
             'id': conf.id,
             'remarks': conf.remarks,
             'group': conf.group,
-            'sub': conf.sub.id if conf.sub else None,
+            'sub': conf.sub_id if conf.sub_id else None,
         },
     }
 
@@ -108,7 +109,7 @@ class Manager:
     """
     model = None  # type: Type[Models]
 
-    def list(self, id_list: Optional[List[int]]) -> Iterable[Models]:
+    def list(self, id_list: Optional[List[int]], verbose: bool = False) -> Iterable[Models]:
         if id_list is None:
             return self.model.select()
         else:
@@ -135,6 +136,14 @@ class Manager:
 class SsrConfManager(Manager):
     model = SsrConf
 
+    def list(self, id_list: Optional[List[int]], verbose: bool = False) -> Iterable[AnyStr]:
+        if verbose:
+            return map(
+                lambda conf: json.dumps(conf_to_json(conf), indent=2, ensure_ascii=False),
+                super().list(id_list))
+        else:
+            return super().list(id_list)
+
     def take_use(self, pk: int) -> None:
         instance = self.model.get(pk)
         json_config = {**conf_to_json(instance), **config.SSR_CONF_EXTRA_FIELDS}
@@ -155,6 +164,19 @@ async def _update_sub(url: str, pk: Optional[int] = None) -> UpdateResult:
 
 class SsrSubManager(Manager):
     model = SsrSub
+
+    def list(self, id_list: Optional[List[int]], verbose: bool = False) -> Iterable[AnyStr]:
+        if verbose:
+            if id_list is None:
+                sub_query = SsrSub.select()
+            else:
+                sub_query = SsrSub.select().where(SsrSub.id.in_(id_list))
+            conf_query = SsrConf.select()
+            sub_with_conf = prefetch(sub_query, conf_query)
+
+            return map((lambda sub: '[\n{}\n{}]'.format(sub, '\n'.join(map(str, sub.ssrconf_set)))), sub_with_conf)
+        else:
+            return super().list(id_list)
 
     @staticmethod
     def _update_result(result: UpdateResult, instance: SsrSub) -> None:

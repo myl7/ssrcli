@@ -50,6 +50,15 @@ def test_list_some_sub():
 
 
 @init_sub_table
+def test_list_some_sub_verbosely():
+    subprocess.run(CMD_PREFIX + ['sub', 'add', '-j', json.dumps(SSR_SUB)], env=VENV_ENV)
+    process = subprocess.run(CMD_PREFIX + ['sub', 'ls', '-i', '1', '-V'], capture_output=True, env=VENV_ENV)
+    stdout = process.stdout.decode('utf-8')
+    for sign in ['{}: {}'.format(*pair) for pair in SSR_SUB.items()]:
+        assert sign in stdout  # TODO(myl7): assert ssrconf_set
+
+
+@init_sub_table
 def test_list_all_sub():
     subprocess.run(CMD_PREFIX + ['sub', 'add', '-j', json.dumps(SSR_SUB)], env=VENV_ENV)
     subprocess.run(CMD_PREFIX + ['sub', 'add', '-j', json.dumps(SSR_SUB)], env=VENV_ENV)
