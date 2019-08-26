@@ -6,7 +6,6 @@ db = peewee.SqliteDatabase(config.DB_URL)
 
 
 class SsrSub(peewee.Model):
-    id = peewee.AutoField(primary_key=True)
     name = peewee.CharField(max_length=50)
     url = peewee.TextField()
 
@@ -22,7 +21,6 @@ class SsrSub(peewee.Model):
 
 
 class SsrConf(peewee.Model):
-    id = peewee.AutoField(primary_key=True)
     server = peewee.CharField(max_length=100)
     server_port = peewee.IntegerField()
     protocol = peewee.CharField(max_length=50)
