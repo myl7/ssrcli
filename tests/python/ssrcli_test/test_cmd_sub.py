@@ -2,13 +2,18 @@ import subprocess
 import json
 from typing import Callable
 
-from .shared_variables import SRC_DIR, CMD_PREFIX, VENV_ENV
+from .shared_variables import CMD_PREFIX, VENV_ENV
 
 from ssrcli.models import db, SsrSub
 
 SSR_SUB = {
     'name': 'test',
-    'url': 'http://127.0.0.1:8000/'
+    'url': 'http://127.0.0.1:8000/',
+}
+
+LOCAL_SSR_SUB = {
+    'name': 'local test',
+    'url': 'http://127.0.0.1:8001/index.txt',
 }
 
 
@@ -64,3 +69,24 @@ def test_delete_sub():
     cursor = db.cursor()
     query_result = cursor.execute("SELECT COUNT(id) FROM ssrsub WHERE name = 'test'").fetchone()
     assert query_result[0] == 0
+
+
+@init_sub_table
+def test_update_some_sub():
+    subprocess.run(CMD_PREFIX + ['sub', 'add', '-j', json.dumps(LOCAL_SSR_SUB)], env=VENV_ENV)
+    subprocess.run(CMD_PREFIX + ['sub', 'update', '-i', '1'], env=VENV_ENV)
+    cursor = db.cursor()
+    query_result = cursor.execute("SELECT server, server_port FROM ssrconf WHERE sub_id = 1").fetchone()
+    assert query_result == ('::1', 30000)
+
+
+@init_sub_table
+def test_update_all_sub():
+    subprocess.run(CMD_PREFIX + ['sub', 'add', '-j', json.dumps(LOCAL_SSR_SUB)], env=VENV_ENV)
+    subprocess.run(CMD_PREFIX + ['sub', 'add', '-j', json.dumps(LOCAL_SSR_SUB)], env=VENV_ENV)
+    subprocess.run(CMD_PREFIX + ['sub', 'update'], env=VENV_ENV)
+    cursor = db.cursor()
+    query_result = cursor.execute("SELECT server, server_port FROM ssrconf WHERE sub_id = 1").fetchone()
+    assert query_result == ('::1', 30000)
+    query_result = cursor.execute("SELECT server, server_port FROM ssrconf WHERE sub_id = 2").fetchone()
+    assert query_result == ('::1', 30000)

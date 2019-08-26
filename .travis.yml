@@ -24,6 +24,8 @@ before_script:
   # Do not change alpine sources
   - sed -i /mirrors.ustc.edu.cn/d docker/ssrcli/ssrcli_app/Dockerfile
   - sed -i /mirrors.ustc.edu.cn/d docker/ssrcli/ssrcli_http/Dockerfile
+
+  - tests/scripts/prepare_tests.sh &
 script:
   - (cd docker/ssrcli && docker-compose up -d --build)
   - (cd tests/python && pytest)
@@ -33,4 +35,3 @@ cache: pip
 branches:
   only:
     - master
-    - dev

@@ -154,7 +154,7 @@ class SsrSubManager(Manager):
         if id_list:
             ins_dict = {ins.id: ins for ins in SsrSub.select().where(SsrSub.id.in_(id_list))}
         else:
-            ins_dict = {ins.id: int for ins in SsrSub.select()}
+            ins_dict = {ins.id: ins for ins in SsrSub.select()}
         tasks = [_update_sub(ins.url, ins.id) for ins in ins_dict.values()]
         results = asyncio.get_event_loop().run_until_complete(asyncio.gather(*tasks))
         for result in results:
