@@ -1,0 +1,20 @@
+version: '3.7'
+
+services:
+  app:
+    build: ssrcli_app
+    image: myl7/ssrcli_app:1.0.1
+    restart: always
+    ports:
+      - 1080:1080
+    volumes:
+      - /etc/ssr:/etc/ssr
+
+  http:
+    depends_on:
+      - app
+    build: ssrcli_http
+    image: myl7/ssrcli_http:1.0.0
+    restart: always
+    ports:
+      - 10800:10800

@@ -1,0 +1,6 @@
+# Production
+requests==2.22.0
+peewee==3.10.0
+
+# Tests
+pytest==5.1.1
