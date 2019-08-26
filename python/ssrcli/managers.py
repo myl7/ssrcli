@@ -112,8 +112,11 @@ class Manager:
     def create(self, **kwargs: Param) -> Models:
         return self.model.create(**kwargs)
 
-    def delete(self, id_list: List[int]) -> None:
-        query = self.model.select().where(self.model.id.in_(id_list))
+    def delete(self, id_list: Optional[List[int]]) -> None:
+        if id_list is None:
+            query = self.model.select()
+        else:
+            query = self.model.select().where(self.model.id.in_(id_list))
         for ins in query:
             ins.delete_instance()
 
@@ -176,7 +179,8 @@ def take_action(param_dict: Dict[str, Param]) -> None:
         if action in ['ls', 'get']:  # `get` is deprecated
             if action == 'get':
                 print('`get` is deprecated! Use `ls` as it can work the same as `get`')
-            for ins in manager.list(param_dict.get('ins_id', None)):
+            id_list = param_dict.get('ins_id', None) if param_dict['all'] else None
+            for ins in manager.list(id_list):
                 print(ins)
 
         elif action == 'add':
@@ -201,7 +205,11 @@ def take_action(param_dict: Dict[str, Param]) -> None:
                 raise RuntimeError()
 
         elif action == 'rm':
-            manager.delete(param_dict['ins_id'])
+            if param_dict['all']:
+                id_list = None
+            else:
+                id_list = param_dict['ins_id']
+            manager.delete(id_list)
 
         elif action == 'edit':
             raise NotImplementedError()  # TODO(myl7)
@@ -214,7 +222,8 @@ def take_action(param_dict: Dict[str, Param]) -> None:
         elif action == 'update':
             if model != SsrSub:
                 raise NoSuchOperation('update')
-            manager.update(param_dict.get('ins_id', None))
+            id_list = param_dict.get('ins_id', None) if param_dict['all'] else None
+            manager.update(id_list)
 
         else:
             raise RuntimeError()

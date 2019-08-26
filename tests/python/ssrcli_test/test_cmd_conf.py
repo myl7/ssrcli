@@ -49,6 +49,14 @@ def test_list_all_conf():
 
 
 @init_conf_table
+def test_list_all_conf_with_a():
+    subprocess.run(CMD_PREFIX + ['conf', 'add', '-j', json.dumps(SSR_CONF['info'])], env=VENV_ENV)
+    subprocess.run(CMD_PREFIX + ['conf', 'add', '-j', json.dumps(SSR_CONF['info'])], env=VENV_ENV)
+    process = subprocess.run(CMD_PREFIX + ['conf', 'ls', '-a'], capture_output=True, env=VENV_ENV)
+    assert process.stdout.decode('utf-8').count('remarks: test') >= 2
+
+
+@init_conf_table
 def test_edit_conf():
     pass  # TODO(myl7): Not implement
 
@@ -61,6 +69,16 @@ def test_delete_conf():
     query_result = cursor.execute(
         "SELECT COUNT(id) FROM ssrconf WHERE remarks = 'test' AND `group` = 'test'").fetchone()
     assert query_result[0] == 0
+
+
+@init_conf_table
+def test_delete_conf_without_info():
+    subprocess.run(CMD_PREFIX + ['conf', 'add', '-j', json.dumps(SSR_CONF['info'])], env=VENV_ENV)
+    subprocess.run(CMD_PREFIX + ['conf', 'rm'], env=VENV_ENV)
+    cursor = db.cursor()
+    query_result = cursor.execute(
+        "SELECT COUNT(id) FROM ssrconf WHERE remarks = 'test' AND `group` = 'test'").fetchone()
+    assert query_result[0] == 1
 
 
 @init_conf_table

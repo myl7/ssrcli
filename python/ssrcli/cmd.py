@@ -12,6 +12,7 @@ def create_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         'action', choices=['ls', 'add', 'rm', 'edit', 'take', 'update', 'get'], help='choose which action to take')
     # `get` is deprecated
+    parser.add_argument('-a', '--all', action='store_true', help='work on all instances', default=False)
     parser.add_argument('-i', '--id', type=int, action='append', help='give instance id', dest='ins_id')
     parser.add_argument('-j', '--json', help='give instance json-format information', dest='ins_json')
     parser.add_argument('-u', '--url', help='give SSR sharing URL', dest='ssr_url')
