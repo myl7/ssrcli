@@ -50,10 +50,9 @@ def to_ssr_url(ssr_conf: SsrConf) -> str:
         'remarks': b64_encode_ssr(ssr_conf.remarks),
         'group': b64_encode_ssr(ssr_conf.group),
     }
-    return 'ssr://' + b64_encode_ssr((
+    return 'ssr://' + b64_encode_ssr(
         '{server}:{server_port}:{protocol}:{method}:{obfs}:{password}/?'
-        'obfsparam={obfs_param}&protoparam={protocol_param}&remarks={remarks}&group={group}'
-    ).format(**info))
+        'obfsparam={obfs_param}&protoparam={protocol_param}&remarks={remarks}&group={group}'.format(**info))
 
 
 def from_ssr_url(ssr_url: str) -> Dict[str, str]:
