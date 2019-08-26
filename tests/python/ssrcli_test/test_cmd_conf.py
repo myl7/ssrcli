@@ -25,6 +25,7 @@ def test_add_conf():
     assert query_result[0] == 1
 
 
+# `get` is deprecated
 @init_conf_table
 def test_get_conf():
     subprocess.run(CMD_PREFIX + ['conf', 'add', '-j', json.dumps(SSR_CONF['info'])], env=VENV_ENV)
@@ -33,7 +34,14 @@ def test_get_conf():
 
 
 @init_conf_table
-def test_list_conf():
+def test_list_some_conf():
+    subprocess.run(CMD_PREFIX + ['conf', 'add', '-j', json.dumps(SSR_CONF['info'])], env=VENV_ENV)
+    process = subprocess.run(CMD_PREFIX + ['conf', 'ls', '-i', '1'], capture_output=True, env=VENV_ENV)
+    assert 'remarks: test' in process.stdout.decode('utf-8')
+
+
+@init_conf_table
+def test_list_all_conf():
     subprocess.run(CMD_PREFIX + ['conf', 'add', '-j', json.dumps(SSR_CONF['info'])], env=VENV_ENV)
     subprocess.run(CMD_PREFIX + ['conf', 'add', '-j', json.dumps(SSR_CONF['info'])], env=VENV_ENV)
     process = subprocess.run(CMD_PREFIX + ['conf', 'ls'], capture_output=True, env=VENV_ENV)
