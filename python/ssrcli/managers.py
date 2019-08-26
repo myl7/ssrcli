@@ -91,6 +91,12 @@ def conf_to_json(conf: SsrConf) -> Dict[str, Union[str, int]]:
         'password': conf.password,
         'obfs_param': conf.obfs_param,
         'protocol_param': conf.protocol_param,
+        '_meta': {
+            'id': conf.id,
+            'remarks': conf.remarks,
+            'group': conf.group,
+            'sub': conf.sub.id if conf.sub else None,
+        },
     }
 
 
