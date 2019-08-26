@@ -41,6 +41,15 @@ def test_list_some_conf():
 
 
 @init_conf_table
+def test_list_some_conf_verbosely():
+    subprocess.run(CMD_PREFIX + ['conf', 'add', '-j', json.dumps(SSR_CONF['info'])], env=VENV_ENV)
+    process = subprocess.run(CMD_PREFIX + ['conf', 'ls', '-i', '1', '-V'], capture_output=True, env=VENV_ENV)
+    stdout = process.stdout.decode('utf-8')
+    for sign in ['"{}": "{}"'.format(*pair) for pair in SSR_CONF['info'].items() if isinstance(pair[1], str)]:
+        assert sign in stdout
+
+
+@init_conf_table
 def test_list_all_conf():
     subprocess.run(CMD_PREFIX + ['conf', 'add', '-j', json.dumps(SSR_CONF['info'])], env=VENV_ENV)
     subprocess.run(CMD_PREFIX + ['conf', 'add', '-j', json.dumps(SSR_CONF['info'])], env=VENV_ENV)
