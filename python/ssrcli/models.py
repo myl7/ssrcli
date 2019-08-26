@@ -31,7 +31,7 @@ class SsrConf(peewee.Model):
     protocol_param = peewee.TextField()
     remarks = peewee.TextField()
     group = peewee.CharField(max_length=50)
-    sub = peewee.ForeignKeyField(SsrSub, null=True)
+    sub = peewee.ForeignKeyField(SsrSub, null=True, on_delete='CASCADE')
 
     class Meta:
         database = db
