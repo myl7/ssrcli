@@ -2,13 +2,13 @@ import subprocess
 import json
 from typing import Callable
 
-from .shared_variables import SRC_DIR, CMD_PREFIX, VENV_ENV
+from .shared_variables import CMD_PREFIX, VENV_ENV
 
 from ssrcli.models import db, SsrSub
 
 SSR_SUB = {
     'name': 'test',
-    'url': 'http://127.0.0.1:8000/'
+    'url': 'http://127.0.0.1:8000/',
 }
 
 
@@ -64,3 +64,13 @@ def test_delete_sub():
     cursor = db.cursor()
     query_result = cursor.execute("SELECT COUNT(id) FROM ssrsub WHERE name = 'test'").fetchone()
     assert query_result[0] == 0
+
+
+@init_sub_table
+def test_update_some_sub():
+    pass
+
+
+@init_sub_table
+def test_update_all_sub():
+    pass
