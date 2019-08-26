@@ -29,6 +29,7 @@ def test_add_sub():
     assert query_result[0] == 1
 
 
+# `get` is deprecated
 @init_sub_table
 def test_get_sub():
     subprocess.run(CMD_PREFIX + ['sub', 'add', '-j', json.dumps(SSR_SUB)], env=VENV_ENV)
@@ -37,7 +38,14 @@ def test_get_sub():
 
 
 @init_sub_table
-def test_list_sub():
+def test_list_some_sub():
+    subprocess.run(CMD_PREFIX + ['sub', 'add', '-j', json.dumps(SSR_SUB)], env=VENV_ENV)
+    process = subprocess.run(CMD_PREFIX + ['sub', 'ls', '-i', '1'], capture_output=True, env=VENV_ENV)
+    assert 'name: test' in process.stdout.decode('utf-8')
+
+
+@init_sub_table
+def test_list_all_sub():
     subprocess.run(CMD_PREFIX + ['sub', 'add', '-j', json.dumps(SSR_SUB)], env=VENV_ENV)
     subprocess.run(CMD_PREFIX + ['sub', 'add', '-j', json.dumps(SSR_SUB)], env=VENV_ENV)
     process = subprocess.run(CMD_PREFIX + ['sub', 'ls'], capture_output=True, env=VENV_ENV)

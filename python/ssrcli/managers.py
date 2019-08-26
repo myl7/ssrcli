@@ -1,7 +1,7 @@
 import base64
 import json
 import asyncio
-from typing import Iterator, Type, Union, Tuple, Optional, Dict, Iterable
+from typing import Iterator, Type, Union, Tuple, Optional, Dict, Iterable, List
 
 import requests
 
@@ -10,7 +10,7 @@ from .models import SsrConf, SsrSub
 from .exceptions import SsrcliException, SsrUrlInvalid, RequireMoreParam, InvalidParam, NoSuchOperation
 
 Models = Union[SsrConf, SsrSub]
-Param = Union[str, int]
+Param = Union[str, List[int]]
 UpdateResult = Tuple[Iterator[Dict[str, str]], Optional[int]]
 
 
@@ -103,18 +103,19 @@ class Manager:
     """
     model = None  # type: Type[Models]
 
-    def get(self, pk: int) -> Models:
-        return self.model.get(pk)
-
-    def list(self) -> Iterable[Models]:
-        return self.model.select()
+    def list(self, id_list: Optional[List[int]]) -> Iterable[Models]:
+        if id_list:
+            return self.model.select().where(self.model.id.in_(id_list))
+        else:
+            return self.model.select()
 
     def create(self, **kwargs: Param) -> Models:
         return self.model.create(**kwargs)
 
-    def delete(self, pk: int) -> None:
-        instance = self.model.get(pk)
-        instance.delete_instance()
+    def delete(self, id_list: List[int]) -> None:
+        query = self.model.select().where(self.model.id.in_(id_list))
+        for ins in query:
+            ins.delete_instance()
 
     def edit(self, pk: int, **kwargs: Param) -> None:
         instance = self.model.get(pk)
@@ -149,18 +150,15 @@ class SsrSubManager(Manager):
         for info in result[0]:
             SsrConf.create(**info, sub=instance)
 
-    def update_one(self, pk: int) -> None:
-        instance = SsrSub.get(pk)
-        task = _update_sub(instance.url)
-        result = asyncio.get_event_loop().run_until_complete(task)
-        self._update_result(result, instance)
-
-    def update_all(self) -> None:
-        instances = [ins for ins in SsrSub.select().order_by(SsrSub.id.desc())]
-        tasks = [_update_sub(ins.url, ins.id) for ins in instances]
+    def update(self, id_list: Optional[List[int]]) -> None:
+        if id_list:
+            ins_dict = {ins.id: ins for ins in SsrSub.select().where(SsrSub.id.in_(id_list))}
+        else:
+            ins_dict = {ins.id: int for ins in SsrSub.select()}
+        tasks = [_update_sub(ins.url, ins.id) for ins in ins_dict.values()]
         results = asyncio.get_event_loop().run_until_complete(asyncio.gather(*tasks))
         for result in results:
-            self._update_result(result, instances[result[1] - 1])
+            self._update_result(result, ins_dict[result[1]])
 
 
 def take_action(param_dict: Dict[str, Param]) -> None:
@@ -175,11 +173,10 @@ def take_action(param_dict: Dict[str, Param]) -> None:
         raise RequireMoreParam(error.args[0])
 
     try:
-        if action == 'get':
-            print(manager.get(param_dict['ins_id']))
-
-        elif action == 'ls':
-            for ins in manager.list():
+        if action in ['ls', 'get']:  # `get` is deprecated
+            if action == 'get':
+                print('`get` is deprecated! Use `ls` as it can work the same as `get`')
+            for ins in manager.list(param_dict.get('ins_id', None)):
                 print(ins)
 
         elif action == 'add':
@@ -212,15 +209,12 @@ def take_action(param_dict: Dict[str, Param]) -> None:
         elif action == 'take':
             if model != SsrConf:
                 raise NoSuchOperation('take')
-            manager.take_use(param_dict['ins_id'])
+            manager.take_use(param_dict['ins_id'].pop())
 
         elif action == 'update':
             if model != SsrSub:
                 raise NoSuchOperation('update')
-            if 'ins_id' in param_dict.keys():
-                manager.update_one(param_dict['ins_id'])
-            else:
-                manager.update_all()
+            manager.update(param_dict.get('ins_id', None))
 
         else:
             raise RuntimeError()
