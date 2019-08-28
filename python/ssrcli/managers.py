@@ -153,7 +153,7 @@ class SsrConfManager(Manager):
     @staticmethod
     def load_use() -> str:
         with open(config.SSR_CONF_PATH, 'r') as file:
-            return file.read()
+            return json.dumps(json.load(file), indent=2, ensure_ascii=False)
 
 
 async def _update_sub(url: str, pk: Optional[int] = None) -> UpdateResult:
