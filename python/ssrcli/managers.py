@@ -148,7 +148,7 @@ class SsrConfManager(Manager):
         instance = self.model.get(pk)
         json_config = {**conf_to_json(instance), **config.SSR_CONF_EXTRA_FIELDS}
         with open(config.SSR_CONF_PATH, 'w') as file:
-            file.write(json.dumps(json_config, indent=2, ensure_ascii=False))
+            file.write(json.dumps(json_config, indent=2))
 
     @staticmethod
     def load_use() -> str:
