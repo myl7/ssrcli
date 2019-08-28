@@ -42,8 +42,9 @@ def take_action(param_dict: Dict[str, Param]) -> None:
             if action == 'get':
                 print('`get` is deprecated! Use `ls` as it can work the same as `get`')
             id_list = param_dict.get('ins_id', None) if param_dict['all'] else None
-            for info in manager.list(id_list, verbose=param_dict['verbose']):
-                print(info)
+            if not (id_list is None and not param_dict['all'] and param_dict['current']):
+                for info in manager.list(id_list, verbose=param_dict['verbose']):
+                    print(info)
             if param_dict['current']:
                 print('\nCurrently-used configuration is:')
                 print(manager.load_use())
