@@ -18,7 +18,8 @@ before_install:
   - chmod +x docker-compose
   - sudo mv docker-compose /usr/local/bin
 install:
-  - pip install -r requirements.txt
+  - pip install -U -r requirements.txt
+  - pip install -U pytest
 
 before_script:
   # Do not change alpine sources
