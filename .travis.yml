@@ -26,7 +26,9 @@ before_script:
   - tests/scripts/prepare_tests.sh &
 script:
   - (cd docker/ssrcli && docker-compose up -d --build)
-  - (cd tests && python -m pytest)
+  - (cd tests &&
+    env XDG_DATA_HOME=$(pwd) XDG_CONFIG_HOME=$(pwd) XDG_DATA_DIRS=$(pwd)
+    XDG_CONFIG_DIRS=$(pwd) XDG_CACHE_HOME=$(pwd) XDG_RUNTIME_DIR=$(pwd) python -m pytest)
 after_script:
   - kill %1
 cache: pip

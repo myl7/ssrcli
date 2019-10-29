@@ -1,6 +1,5 @@
 import subprocess
 import json
-from typing import Callable
 
 from .shared import CMD_PREFIX, SSR_CONF, VENV_ENV
 
@@ -8,7 +7,7 @@ from ssrcli.config import config
 from ssrcli.models import db, SsrConf
 
 
-def init_conf_table(func: Callable[[], None]) -> Callable[[], None]:
+def init_conf_table(func):
     def wrapper():
         SsrConf.truncate_table()
         func()
@@ -94,7 +93,7 @@ def test_delete_conf_without_info():
 def test_take_conf():
     subprocess.run(CMD_PREFIX + ['conf', 'add', '-j', json.dumps(SSR_CONF['info'])], env=VENV_ENV)
     subprocess.run(CMD_PREFIX + ['conf', 'take', '-i', '1'], env=VENV_ENV)
-    with open('config.json', 'r') as file:
+    with open(config.SSR_CONF_PATH, 'r') as file:
         assert json.load(file) == {**SSR_CONF['json'], **config.SSR_CONF_EXTRA_FIELDS}
 
 

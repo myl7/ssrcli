@@ -129,5 +129,4 @@ dmypy.json
 .idea/
 
 ### Test files
-tests/**/config.json
-tests/**/data.sqlite3
+tests/ssr/*
