@@ -3,7 +3,7 @@ version: '3.7'
 services:
   app:
     build: ssrcli_app
-    image: myl7/ssrcli_app:1.0.1
+    image: myl7/ssrcli_app:1.0.2
     restart: always
     ports:
       - 1080:1080

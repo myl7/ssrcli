@@ -1,15 +1,15 @@
 FROM alpine/git:1.0.7 AS builder
-RUN git clone https://github.com/shadowsocksr-backup/shadowsocksr -b manyuser /home/ssr \
- && rm -rf /home/ssr/.git*
+WORKDIR /app
+RUN git clone https://github.com/shadowsocksr-backup/shadowsocksr -b manyuser /app \
+ && rm -rf /app/.git*
 
 FROM alpine:3.10
-WORKDIR /home
+WORKDIR /app
 RUN echo "http://mirrors.ustc.edu.cn/alpine/v3.10/main/" >/etc/apk/repositories
-RUN apk --no-cache add python libsodium
-COPY --from=builder /home/ssr ssr
+RUN apk --no-cache add python2 libsodium
+COPY --from=builder /app app
 COPY config.example.json /etc/ssr/config.json
-
 EXPOSE 1080
 VOLUME [ "/etc/ssr" ]
-CMD [ "python", "/home/ssr/shadowsocks/local.py", "-c", "/etc/ssr/config.json", "start" ]
-LABEL maintainer="myl7 <myl.ustc@gmail.com>" version="1.0.1"
+CMD [ "python2", "/app/shadowsocks/local.py", "-c", "/etc/ssr/config.json", "start" ]
+LABEL maintainer="myl7 <myl.ustc@gmail.com>" version="1.0.2"
