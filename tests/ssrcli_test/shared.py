@@ -37,7 +37,7 @@ SSR_CONF = {
     },
 }
 
-CMD_PREFIX = ['python3', '-m', 'ssrcli.cmd']
+CMD_PREFIX = ['python3', '-m', 'ssrcli.cli']
 
 _venv_env = os.environ.copy()
 if _venv_env.get('PYTHONPATH', None):
