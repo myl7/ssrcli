@@ -7,7 +7,7 @@ SSR_CONF = {
         'ssr://'
         'OjoxOjMwMDAwOm5vbmU6dGVzdDpwbGFpbjpkR1Z6ZEEvP29iZnNwYXJhbT'
         '0mcHJvdG9wYXJhbT0mcmVtYXJrcz1kR1Z6ZEEmZ3JvdXA9ZEdWemRB'),
-    'info': {
+    'dict': {
         'server': '::1',
         'server_port': 30000,
         'protocol': 'none',
@@ -19,7 +19,7 @@ SSR_CONF = {
         'remarks': 'test',
         'group': 'test',
     },
-    'json': {
+    'config_dict': {
         'server': '::1',
         'server_port': 30000,
         'protocol': 'none',

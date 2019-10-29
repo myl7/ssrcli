@@ -1,106 +1,62 @@
 import argparse
-import json
-from typing import Dict
+from typing import List, Optional
 
 from .config import config
-from .managers import SsrConfManager, SsrSubManager, Param, SsrConf, SsrSub, from_ssr_url
-from .exceptions import RequireMoreParam, InvalidParam, NoSuchOperation
+from .controllers import AppCliController
 
 
-def create_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(prog='ssrcli', description='SSR client: resource management tool',
-                                     argument_default=argparse.SUPPRESS)
-    parser.add_argument('-v', '--version', action='version', version='%(prog)s {}'.format(config.VERSION))
-    parser.add_argument('model', choices=['conf', 'sub'], help='choose which kind of resources to manage')
-    parser.add_argument(
-        'action', choices=['ls', 'add', 'rm', 'edit', 'take', 'update', 'get'], help='choose which action to take')
-    # `get` is deprecated
-    parser.add_argument('-a', '--all', action='store_true', help='work on all instances', default=False)
-    parser.add_argument('-i', '--id', type=int, action='append', help='give instance id', dest='ins_id')
-    parser.add_argument('-j', '--json', help='give instance json-format information', dest='ins_json')
-    parser.add_argument('-u', '--url', help='give SSR sharing URL', dest='ssr_url')
-    parser.add_argument('-c', '--current', action='store_true', default=False,
-                        help='show currently-used configuration for SSR')
-    parser.add_argument('-V', '--verbose', action='store_true', default=False,
-                        help='show more information of the instances')
-    return parser
+class AppCli:
+    def __init__(self):
+        super().__init__()
+        self._build()
 
+    def _build(self):
+        self.parser = argparse.ArgumentParser(prog='ssrcli', argument_default=argparse.SUPPRESS,
+                                              description='SSR client management tool with command line interface')
+        self.parser.add_argument('-V', '--version', action='version', version='%(prog) {}'.format(config.VERSION))
+        self.parser.add_argument('-v', '--verbose', action='store_true', default=False,
+                                 help='show verbose information')
+        self.parser.add_argument('-q', '--quiet', action='store_true', default=False,
+                                 help='show concise information')  # TODO(myl7)
+        subparsers = self.parser.add_subparsers(dest='model',
+                                                help='manage certain model. Add "-h" to show sub-command help.')
+        self._build_conf(subparsers)
+        self._build_sub(subparsers)
 
-def take_action(param_dict: Dict[str, Param]) -> None:
-    try:
-        model, manager = {
-            'conf': (SsrConf, SsrConfManager()),
-            'sub': (SsrSub, SsrSubManager()),
-        }[param_dict['model']]
+    def _build_conf(self, subparsers):
+        conf_parser: argparse.ArgumentParser = subparsers.add_parser('conf', argument_default=argparse.SUPPRESS,
+                                                                     help='configuration management')
+        conf_parser.add_argument('action', choices=['l', 'a', 'd', 'e', 's'],
+                                 help='choose an action: l -> list, a -> add, d -> delete, e -> edit, s -> use')
+        conf_parser.add_argument('-a', '--all', action='store_true', default=False,
+                                 help='perform on all configurations')
+        conf_parser.add_argument('-c', '--choose', type=int, action='append', dest='c_id_list',
+                                 help='give configuration id (allow multi id)')
+        conf_parser.add_argument('-U', '--url', help='give SSR share url')
+        conf_parser.add_argument('-r', '--current', action='store_true', default=False,
+                                 help='include currently used configuration')
+        conf_parser.add_argument('-j', '--json', type=str, help='input required information with json')
 
-        action = param_dict['action']
-    except KeyError as error:
-        raise RequireMoreParam(error.args[0])
+    def _build_sub(self, subparsers):
+        sub_parser: argparse.ArgumentParser = subparsers.add_parser('sub', argument_default=argparse.SUPPRESS,
+                                                                    help='subscription management')
+        sub_parser.add_argument('action', choices=['l', 'a', 'd', 'e', 'u'],
+                                help='choose an action: l -> list, a -> add, d -> delete, e -> edit, u -> update')
+        sub_parser.add_argument('-a', '--all', action='store_true', default=False,
+                                help='perform on all subscriptions')
+        sub_parser.add_argument('-c', '--choose', type=int, action='append', dest='c_id_list',
+                                help='give subscription id (allow multi id)')
+        sub_parser.add_argument('-j', '--json', type=str, help='input required information with json')
 
-    try:
-        if action in ['ls', 'get']:  # `get` is deprecated
-            if action == 'get':
-                print('`get` is deprecated! Use `ls` as it can work the same as `get`')
-            id_list = param_dict.get('ins_id', None) if param_dict['all'] else None
-            if not (id_list is None and not param_dict['all'] and param_dict['current']):
-                for info in manager.list(id_list, verbose=param_dict['verbose']):
-                    print(info)
-            if param_dict['current']:
-                print('\nCurrently-used configuration is:')
-                print(manager.load_use())
-
-        elif action == 'add':
-            if model == SsrConf:
-                if 'ssr_url' in param_dict.keys():
-                    json_info = from_ssr_url(param_dict['ssr_url'])
-                else:
-                    try:
-                        json_info = json.loads(param_dict['ins_json'])
-                    except ValueError:
-                        raise InvalidParam('ins_json')
-                print(manager.create(**json_info))
-
-            elif model == SsrSub:
-                try:
-                    json_info = json.loads(param_dict['ins_json'])
-                except ValueError:
-                    raise InvalidParam('ins_json')
-                print(manager.create(**json_info))
-
-            else:
-                raise RuntimeError()
-
-        elif action == 'rm':
-            if param_dict['all']:
-                id_list = None
-            else:
-                id_list = param_dict['ins_id']
-            manager.delete(id_list)
-
-        elif action == 'edit':
-            raise NotImplementedError()  # TODO(myl7)
-
-        elif action == 'take':
-            if model != SsrConf:
-                raise NoSuchOperation('take')
-            manager.take_use(param_dict['ins_id'].pop())
-
-        elif action == 'update':
-            if model != SsrSub:
-                raise NoSuchOperation('update')
-            id_list = param_dict.get('ins_id', None) if param_dict['all'] else None
-            manager.update(id_list)
-
-        else:
-            raise RuntimeError()
-    except KeyError as error:
-        raise RequireMoreParam(error.args[0])
+    def parse(self, arg_list: Optional[List[str]] = None) -> dict:
+        arg_obj = self.parser.parse_args(arg_list)
+        return vars(arg_obj)
 
 
 def main():
-    arg_parser = create_parser()
-    arg_param_dict = vars(arg_parser.parse_args())
-    take_action(arg_param_dict)
+    app_cli = AppCli()
+    app_controller = AppCliController()
+    app_controller.run(app_cli.parse())
 
 
 if __name__ == '__main__':

@@ -1,24 +1,19 @@
 class SsrcliException(Exception):
+    def __init__(self, **kwargs):
+        self.kwargs = kwargs
+
+
+class InvalidSsrUrl(SsrcliException):
     pass
 
 
-class SsrUrlInvalid(SsrcliException):
+class RequireMoreArgument(SsrcliException):
     pass
 
 
-class RequireMoreParam(SsrcliException):
-    def __init__(self, param: str = ''):
-        super().__init__()
-        self.param = param
-
-
-class InvalidParam(SsrcliException):
-    def __init__(self, param: str = ''):
-        super().__init__()
-        self.param = param
+class InvalidArgument(SsrcliException):
+    pass
 
 
 class NoSuchOperation(SsrcliException):
-    def __init__(self, action: str = ''):
-        super().__init__()
-        self.action = action
+    pass
