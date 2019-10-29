@@ -125,9 +125,9 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-### Jetbrains
+### PyCharm project files
 .idea/
 
-### Databases and custom config
-**/python/data.sqlite3
-**/python/config.json
+### Test files
+tests/**/config.json
+tests/**/data.sqlite3

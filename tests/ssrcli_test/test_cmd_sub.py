@@ -2,7 +2,7 @@ import subprocess
 import json
 from typing import Callable
 
-from .shared_variables import CMD_PREFIX, VENV_ENV
+from .shared import CMD_PREFIX, VENV_ENV
 
 from ssrcli.models import db, SsrSub
 

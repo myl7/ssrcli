@@ -1,38 +1,32 @@
-dist: bionic
-
-language: python
-python: "3.7"
-
-services:
-  - docker
-
-env:
-  - DOCKER_COMPOSE_VERSION=1.24.1
-
-sudo: required
-
-before_install:
-  # Reinstall docker-compose
-  - sudo rm /usr/local/bin/docker-compose
-  - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m) > docker-compose
-  - chmod +x docker-compose
-  - sudo mv docker-compose /usr/local/bin
-install:
-  - pip install -U -r requirements.txt
-  - pip install -U pytest
-
-before_script:
-  # Do not change alpine sources
-  - sed -i /mirrors.ustc.edu.cn/d docker/ssrcli/ssrcli_app/Dockerfile
-  - sed -i /mirrors.ustc.edu.cn/d docker/ssrcli/ssrcli_http/Dockerfile
-
-  - tests/scripts/prepare_tests.sh &
-script:
-  - (cd docker/ssrcli && docker-compose up -d --build)
-  - (cd tests/python && pytest)
-
-cache: pip
-
 branches:
   only:
     - master
+dist: bionic
+sudo: required
+language: python
+python:
+  - "3.7"
+  - "3.6"
+services:
+  - docker
+before_install:
+  # Reinstall docker-compose with latest version
+  - sudo rm /usr/local/bin/docker-compose
+  - curl -sSL https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)
+    >docker-compose
+  - chmod +x docker-compose
+  - sudo mv docker-compose /usr/local/bin
+install:
+  - pip install -r requirements.txt
+  - pip install pytest
+before_script:
+  # Revert alpine sources in dockerfile
+  - sed -i /mirrors.ustc.edu.cn/d docker/ssrcli/ssrcli_app/Dockerfile
+  - sed -i /mirrors.ustc.edu.cn/d docker/ssrcli/ssrcli_http/Dockerfile
+  - tests/scripts/prepare_tests.sh &
+script:
+  - (cd docker/ssrcli && docker-compose up -d --build)
+  - (cd tests && python -m pytest)
+after_script:
+  - kill %1
+cache: pip

@@ -1,23 +1,23 @@
 # ssrcli
 
-SSR client with shell interface and using Docker to deploy
+This is a SSR client with shell interface and using Docker to deploy
 
 ## Features
 
 - SSR deployed by Docker, easy to install and use
 - With Privoxy to provide http proxy
-- SSR configuration management, with ssr url support
+- SSR configuration management, with SSR share url support
 - SSR subscription management to update SSR configurations
 
 ## Installation
 
-### docker
+### docker part
 
 Put your SSR config.json into `/etc/ssr/`, then go to `docker/ssrcli` and use `docker-compose up -d` to start the SSR service
 
-### python
+### python part
 
-Copy python package `python/ssrcli` to somewhere you like
+Copy the python package `ssrcli` to your favorite dir
 
 ## Usage
 
