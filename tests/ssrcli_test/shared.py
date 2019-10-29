@@ -1,6 +1,6 @@
 import os
 
-from . import SRC_DIR
+from . import pkg_dir
 
 SSR_CONF = {
     'url': (
@@ -37,11 +37,11 @@ SSR_CONF = {
     },
 }
 
-CMD_PREFIX = ['python3', '-m', 'ssrcli.cmd']
+CMD_PREFIX = ['python3', '-m', 'ssrcli.cli']
 
 _venv_env = os.environ.copy()
 if _venv_env.get('PYTHONPATH', None):
-    _venv_env['PYTHONPATH'] += ':{}'.format(SRC_DIR)
+    _venv_env['PYTHONPATH'] += ':{}'.format(str(pkg_dir))
 else:
-    _venv_env['PYTHONPATH'] = SRC_DIR
+    _venv_env['PYTHONPATH'] = str(pkg_dir)
 VENV_ENV = _venv_env

@@ -1,4 +1,4 @@
-from .shared_variables import SSR_CONF
+from .shared import SSR_CONF
 
 from ssrcli.managers import b64_encode_ssr, b64_decode_ssr, from_ssr_url, to_ssr_url, conf_to_json, SsrConf
 

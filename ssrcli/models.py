@@ -1,8 +1,9 @@
 import peewee
 
 from .config import config
+from .log import logger
 
-db = peewee.SqliteDatabase(config.DB_URL)
+db = peewee.SqliteDatabase(config.DB_PATH)
 
 
 class SsrSub(peewee.Model):
@@ -44,5 +45,9 @@ class SsrConf(peewee.Model):
         ).format(self.id, self.remarks, self.group)
 
 
-db.connect()
+try:
+    db.connect()
+except peewee.OperationalError:
+    logger.critical('Can not open the database. Is the database folder created?')
+    exit(1)
 db.create_tables([SsrConf, SsrSub])

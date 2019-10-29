@@ -1,8 +1,7 @@
 import subprocess
 import json
-from typing import Callable
 
-from .shared_variables import CMD_PREFIX, VENV_ENV
+from .shared import CMD_PREFIX, VENV_ENV
 
 from ssrcli.models import db, SsrSub
 
@@ -17,7 +16,7 @@ LOCAL_SSR_SUB = {
 }
 
 
-def init_sub_table(func: Callable[[], None]) -> Callable[[], None]:
+def init_sub_table(func):
     def wrapper():
         SsrSub.truncate_table()
         func()
@@ -38,21 +37,21 @@ def test_add_sub():
 @init_sub_table
 def test_get_sub():
     subprocess.run(CMD_PREFIX + ['sub', 'add', '-j', json.dumps(SSR_SUB)], env=VENV_ENV)
-    process = subprocess.run(CMD_PREFIX + ['sub', 'get', '-i', '1'], capture_output=True, env=VENV_ENV)
+    process = subprocess.run(CMD_PREFIX + ['sub', 'get', '-i', '1'], stdout=subprocess.PIPE, env=VENV_ENV)
     assert 'name: test' in process.stdout.decode('utf-8')
 
 
 @init_sub_table
 def test_list_some_sub():
     subprocess.run(CMD_PREFIX + ['sub', 'add', '-j', json.dumps(SSR_SUB)], env=VENV_ENV)
-    process = subprocess.run(CMD_PREFIX + ['sub', 'ls', '-i', '1'], capture_output=True, env=VENV_ENV)
+    process = subprocess.run(CMD_PREFIX + ['sub', 'ls', '-i', '1'], stdout=subprocess.PIPE, env=VENV_ENV)
     assert 'name: test' in process.stdout.decode('utf-8')
 
 
 @init_sub_table
 def test_list_some_sub_verbosely():
     subprocess.run(CMD_PREFIX + ['sub', 'add', '-j', json.dumps(SSR_SUB)], env=VENV_ENV)
-    process = subprocess.run(CMD_PREFIX + ['sub', 'ls', '-i', '1', '-V'], capture_output=True, env=VENV_ENV)
+    process = subprocess.run(CMD_PREFIX + ['sub', 'ls', '-i', '1', '-V'], stdout=subprocess.PIPE, env=VENV_ENV)
     stdout = process.stdout.decode('utf-8')
     for sign in ['{}: {}'.format(*pair) for pair in SSR_SUB.items()]:
         assert sign in stdout  # TODO(myl7): assert ssrconf_set
@@ -62,7 +61,7 @@ def test_list_some_sub_verbosely():
 def test_list_all_sub():
     subprocess.run(CMD_PREFIX + ['sub', 'add', '-j', json.dumps(SSR_SUB)], env=VENV_ENV)
     subprocess.run(CMD_PREFIX + ['sub', 'add', '-j', json.dumps(SSR_SUB)], env=VENV_ENV)
-    process = subprocess.run(CMD_PREFIX + ['sub', 'ls'], capture_output=True, env=VENV_ENV)
+    process = subprocess.run(CMD_PREFIX + ['sub', 'ls'], stdout=subprocess.PIPE, env=VENV_ENV)
     assert process.stdout.decode('utf-8').count('name: test') >= 2
 
 
@@ -70,7 +69,7 @@ def test_list_all_sub():
 def test_list_all_sub_with_a():
     subprocess.run(CMD_PREFIX + ['sub', 'add', '-j', json.dumps(SSR_SUB)], env=VENV_ENV)
     subprocess.run(CMD_PREFIX + ['sub', 'add', '-j', json.dumps(SSR_SUB)], env=VENV_ENV)
-    process = subprocess.run(CMD_PREFIX + ['sub', 'ls', '-a'], capture_output=True, env=VENV_ENV)
+    process = subprocess.run(CMD_PREFIX + ['sub', 'ls', '-a'], stdout=subprocess.PIPE, env=VENV_ENV)
     assert process.stdout.decode('utf-8').count('name: test') >= 2
 
 
