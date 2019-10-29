@@ -28,21 +28,21 @@ def test_add_conf():
 @init_conf_table
 def test_get_conf():
     subprocess.run(CMD_PREFIX + ['conf', 'add', '-j', json.dumps(SSR_CONF['info'])], env=VENV_ENV)
-    process = subprocess.run(CMD_PREFIX + ['conf', 'get', '-i', '1'], capture_output=True, env=VENV_ENV)
+    process = subprocess.run(CMD_PREFIX + ['conf', 'get', '-i', '1'], stdout=subprocess.PIPE, env=VENV_ENV)
     assert 'remarks: test' in process.stdout.decode('utf-8')
 
 
 @init_conf_table
 def test_list_some_conf():
     subprocess.run(CMD_PREFIX + ['conf', 'add', '-j', json.dumps(SSR_CONF['info'])], env=VENV_ENV)
-    process = subprocess.run(CMD_PREFIX + ['conf', 'ls', '-i', '1'], capture_output=True, env=VENV_ENV)
+    process = subprocess.run(CMD_PREFIX + ['conf', 'ls', '-i', '1'], stdout=subprocess.PIPE, env=VENV_ENV)
     assert 'remarks: test' in process.stdout.decode('utf-8')
 
 
 @init_conf_table
 def test_list_some_conf_verbosely():
     subprocess.run(CMD_PREFIX + ['conf', 'add', '-j', json.dumps(SSR_CONF['info'])], env=VENV_ENV)
-    process = subprocess.run(CMD_PREFIX + ['conf', 'ls', '-i', '1', '-V'], capture_output=True, env=VENV_ENV)
+    process = subprocess.run(CMD_PREFIX + ['conf', 'ls', '-i', '1', '-V'], stdout=subprocess.PIPE, env=VENV_ENV)
     stdout = process.stdout.decode('utf-8')
     for sign in ['"{}": "{}"'.format(*pair) for pair in SSR_CONF['info'].items() if isinstance(pair[1], str)]:
         assert sign in stdout
@@ -52,7 +52,7 @@ def test_list_some_conf_verbosely():
 def test_list_all_conf():
     subprocess.run(CMD_PREFIX + ['conf', 'add', '-j', json.dumps(SSR_CONF['info'])], env=VENV_ENV)
     subprocess.run(CMD_PREFIX + ['conf', 'add', '-j', json.dumps(SSR_CONF['info'])], env=VENV_ENV)
-    process = subprocess.run(CMD_PREFIX + ['conf', 'ls'], capture_output=True, env=VENV_ENV)
+    process = subprocess.run(CMD_PREFIX + ['conf', 'ls'], stdout=subprocess.PIPE, env=VENV_ENV)
     assert process.stdout.decode('utf-8').count('remarks: test') >= 2
 
 
@@ -60,7 +60,7 @@ def test_list_all_conf():
 def test_list_all_conf_with_a():
     subprocess.run(CMD_PREFIX + ['conf', 'add', '-j', json.dumps(SSR_CONF['info'])], env=VENV_ENV)
     subprocess.run(CMD_PREFIX + ['conf', 'add', '-j', json.dumps(SSR_CONF['info'])], env=VENV_ENV)
-    process = subprocess.run(CMD_PREFIX + ['conf', 'ls', '-a'], capture_output=True, env=VENV_ENV)
+    process = subprocess.run(CMD_PREFIX + ['conf', 'ls', '-a'], stdout=subprocess.PIPE, env=VENV_ENV)
     assert process.stdout.decode('utf-8').count('remarks: test') >= 2
 
 
@@ -101,5 +101,5 @@ def test_take_conf():
 def test_list_used_conf():
     subprocess.run(CMD_PREFIX + ['conf', 'add', '-j', json.dumps(SSR_CONF['info'])], env=VENV_ENV)
     subprocess.run(CMD_PREFIX + ['conf', 'take', '-i', '1'], env=VENV_ENV)
-    process = subprocess.run(CMD_PREFIX + ['conf', 'ls', '-a', '-c'], capture_output=True, env=VENV_ENV)
+    process = subprocess.run(CMD_PREFIX + ['conf', 'ls', '-a', '-c'], stdout=subprocess.PIPE, env=VENV_ENV)
     assert '"remarks": "test"' in process.stdout.decode('utf-8')
