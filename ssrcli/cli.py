@@ -97,7 +97,11 @@ def take_action(param_dict: Dict[str, Param]) -> None:
         raise RequireMoreParam(error.args[0])
 
 
-if __name__ == '__main__':
+def main():
     arg_parser = create_parser()
     arg_param_dict = vars(arg_parser.parse_args())
     take_action(arg_param_dict)
+
+
+if __name__ == '__main__':
+    main()
