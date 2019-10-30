@@ -56,7 +56,6 @@ class AppCli:
 def main():
     app_cli = AppCli()
     app_controller = AppCliController()
-    'DEBUG'; print(app_cli.parse())
     app_controller.run(app_cli.parse())
 
 
