@@ -3,12 +3,12 @@ version: '3.7'
 services:
   app:
     build: ssrcli_app
-    image: myl7/ssrcli_app:1.0.2
+    image: myl7/ssrcli_app:1.1.0
     restart: always
     ports:
       - 1080:1080
     volumes:
-      - /etc/ssr:/etc/ssr
+      - /home/$USER/.config/ssr:/etc/ssr
 
   http:
     depends_on:
