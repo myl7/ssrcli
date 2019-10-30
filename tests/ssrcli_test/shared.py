@@ -1,4 +1,5 @@
 import os
+import subprocess
 
 from . import pkg_dir
 
@@ -45,3 +46,13 @@ if _venv_env.get('PYTHONPATH', None):
 else:
     _venv_env['PYTHONPATH'] = str(pkg_dir)
 VENV_ENV = _venv_env
+
+# TODO(myl7): `text` and `capture_output` are more understandable, but not available in python3.6
+SUBPROCESS_KWARGS = {
+    'env': VENV_ENV,
+    'check': True,
+    'universal_newlines': True,
+    'stdout': subprocess.PIPE,
+    'stderr': subprocess.PIPE,
+    'timeout': 2,
+}
