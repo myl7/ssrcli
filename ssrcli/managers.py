@@ -1,6 +1,6 @@
 import json
 import asyncio
-from typing import Optional, Iterable, List, AnyStr
+from typing import Optional, Iterable, List, AnyStr, Dict, Union
 
 import requests
 import peewee
@@ -66,8 +66,9 @@ class SsrConfManager(Manager):
             return json.dumps(json.load(file), indent=2, ensure_ascii=False)
 
 
-async def _update_sub(url: str, c_id: Optional[int] = None):
-    content = requests.get(url).content.decode('utf-8').strip()
+async def _update_sub(url: str, c_id: Optional[int] = None, proxies: Optional[Union[bool, Dict[str, str]]] = None):
+    proxies = proxies if proxies else None
+    content = requests.get(url, proxies=proxies).content.decode('utf-8').strip()
     ssr_urls = b64_decode_ssr(content).splitlines()
     return map(ssr_url_to_dict, ssr_urls), c_id
 
@@ -96,14 +97,21 @@ class SsrSubManager(Manager):
             models.SsrConf.create(**info, sub=instance)
 
     # TODO(myl7): There update func require refactoring
-    def update(self, c_id_list: Optional[List[int]]) -> None:
+    def update(self, c_id_list: Optional[List[int]], proxies: Optional[Union[bool, Dict[str, str]]] = None) -> None:
+        """Update selected sub
+
+        :param c_id_list: Id of sub that will be updated
+        :param proxies: None or {} to disable proxies, or dict with per-protocol proxy host url that will be sent to
+            requests.get()
+        :return: None
+        """
         if c_id_list is None:
             instance_dict = {instance.id: instance for instance in models.SsrSub.select()}
         else:
             instance_dict = {
                 instance.id: instance for instance in models.SsrSub.select().where(models.SsrSub.id.in_(c_id_list))
             }
-        tasks = [_update_sub(instance.url, instance.id) for instance in instance_dict.values()]
+        tasks = [_update_sub(instance.url, instance.id, proxies) for instance in instance_dict.values()]
         results = asyncio.get_event_loop().run_until_complete(asyncio.gather(*tasks))
         for result in results:
             self._update_result(result, instance_dict[result[1]])

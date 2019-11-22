@@ -10,25 +10,17 @@ python:
 services:
   - docker
 before_install:
-  # Reinstall docker-compose with latest version
-  - sudo rm /usr/local/bin/docker-compose
+  # Replace docker-compose with the latest version
   - curl -sSL https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)
-    >docker-compose
+    > docker-compose
   - chmod +x docker-compose
-  - sudo mv docker-compose /usr/local/bin
+  - sudo mv docker-compose /usr/local/bin/docker-compose
 install:
-  - pip install -r requirements.txt
-  - pip install pytest
+  - find requirements -name '*requirements.txt' -exec pip install -r '{}' \;
 before_script:
   # Revert alpine sources in dockerfile
-  - sed -i /mirrors.ustc.edu.cn/d docker/ssrcli/ssrcli_app/Dockerfile
-  - sed -i /mirrors.ustc.edu.cn/d docker/ssrcli/ssrcli_http/Dockerfile
-  - tests/scripts/prepare_tests.sh &
+  - find docker -name Dockerfile -exec sed -i /mirrors.ustc.edu.cn/d '{}' \;
 script:
   - (cd docker/ssrcli && docker-compose up -d --build)
-  - (cd tests &&
-    env XDG_DATA_HOME=$(pwd) XDG_CONFIG_HOME=$(pwd) XDG_DATA_DIRS=$(pwd)
-    XDG_CONFIG_DIRS=$(pwd) XDG_CACHE_HOME=$(pwd) XDG_RUNTIME_DIR=$(pwd) python -m pytest)
-after_script:
-  - kill %1
+  - (cd tests && ./test.sh)
 cache: pip

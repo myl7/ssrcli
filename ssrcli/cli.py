@@ -47,6 +47,8 @@ class AppCli:
         sub_parser.add_argument('-c', '--choose', type=int, action='append', dest='c_id_list',
                                 help='give subscription id (allow multi id)')
         sub_parser.add_argument('-j', '--json', type=str, help='input required information with json')
+        sub_parser.add_argument('-p', '--proxy', type=str, default=None,
+                                help='Proxies in json format used in subscription updating')
 
     def parse(self, arg_list: Optional[List[str]] = None) -> dict:
         arg_obj = self.parser.parse_args(arg_list)

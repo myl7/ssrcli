@@ -136,3 +136,12 @@ def test_update_all_sub_with_a():
 
 def test_omit_current_in_sub_list():
     subprocess.run(CMD_PREFIX + ['sub', 'l'], **SUBPROCESS_KWARGS)
+
+
+@init_sub_table
+def test_update_sub_with_proxies():
+    subprocess.run(CMD_PREFIX + ['sub', 'a', '-j', json.dumps(LOCAL_TEST_SSR_SUB)], **SUBPROCESS_KWARGS)
+    subprocess.run(CMD_PREFIX + ['sub', 'u', '-a', '-p', '{"http": "http://127.0.0.1:8002"}'], **SUBPROCESS_KWARGS)
+    cursor = db.cursor()
+    query_result = cursor.execute("SELECT server, server_port FROM ssrconf WHERE sub_id = 1").fetchone()
+    assert query_result == ('::1', 30000)

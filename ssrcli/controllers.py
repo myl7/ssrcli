@@ -70,7 +70,11 @@ class AppCliController:
 
         elif arg_dict['action'] == 'u':
             c_id_list = None if arg_dict['all'] else arg_dict.get('c_id_list', None)
-            manager.update(c_id_list)
+            try:
+                proxies = json.loads(arg_dict['proxy']) if arg_dict['proxy'] else None
+            except json.JSONDecodeError:
+                raise exceptions.InvalidArgument(arg='proxies')
+            manager.update(c_id_list, proxies)
 
         else:
             raise exceptions.NoSuchOperation(model=arg_dict['model'], action=arg_dict['action'])
