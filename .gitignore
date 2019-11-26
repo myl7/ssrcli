@@ -129,4 +129,5 @@ dmypy.json
 .idea/
 
 ### Test files
-tests/ssrcli/**
+tests/ssrcli/*
+!.gitkeep
