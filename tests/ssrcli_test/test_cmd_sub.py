@@ -29,7 +29,7 @@ def init_sub_table(func):
 @init_sub_table
 def test_add_sub():
     pass
-    subprocess.run(CMD_PREFIX + ['sub', 'a', '-j', json.dumps(SSR_SUB)], **SUBPROCESS_KWARGS)
+    subprocess.run(CMD_PREFIX + ['-Snj', json.dumps(SSR_SUB)], **SUBPROCESS_KWARGS)
     cursor = db.cursor()
     query_result = cursor.execute("SELECT COUNT(id) FROM ssrsub WHERE name = 'test'").fetchone()
     assert query_result[0] == 1
@@ -37,15 +37,15 @@ def test_add_sub():
 
 @init_sub_table
 def test_list_some_sub():
-    subprocess.run(CMD_PREFIX + ['sub', 'a', '-j', json.dumps(SSR_SUB)], **SUBPROCESS_KWARGS)
-    process = subprocess.run(CMD_PREFIX + ['sub', 'l', '-c', '1'], **SUBPROCESS_KWARGS)
+    subprocess.run(CMD_PREFIX + ['-Snj', json.dumps(SSR_SUB)], **SUBPROCESS_KWARGS)
+    process = subprocess.run(CMD_PREFIX + ['-Slc', '1'], **SUBPROCESS_KWARGS)
     assert 'name: test' in process.stdout
 
 
 @init_sub_table
 def test_list_some_sub_verbosely():
-    subprocess.run(CMD_PREFIX + ['sub', 'a', '-j', json.dumps(SSR_SUB)], **SUBPROCESS_KWARGS)
-    process = subprocess.run(CMD_PREFIX + ['-v', 'sub', 'l', '-c', '1'], **SUBPROCESS_KWARGS)
+    subprocess.run(CMD_PREFIX + ['-Snj', json.dumps(SSR_SUB)], **SUBPROCESS_KWARGS)
+    process = subprocess.run(CMD_PREFIX + ['-vSlc', '1'], **SUBPROCESS_KWARGS)
     stdout = process.stdout
     for sign in ['{}: {}'.format(*pair) for pair in SSR_SUB.items()]:
         assert sign in stdout  # TODO(myl7): assert ssrconf_set
@@ -53,17 +53,17 @@ def test_list_some_sub_verbosely():
 
 @init_sub_table
 def test_list_all_sub():
-    subprocess.run(CMD_PREFIX + ['sub', 'a', '-j', json.dumps(SSR_SUB)], **SUBPROCESS_KWARGS)
-    subprocess.run(CMD_PREFIX + ['sub', 'a', '-j', json.dumps(SSR_SUB)], **SUBPROCESS_KWARGS)
-    process = subprocess.run(CMD_PREFIX + ['sub', 'l'], **SUBPROCESS_KWARGS)
+    subprocess.run(CMD_PREFIX + ['-Snj', json.dumps(SSR_SUB)], **SUBPROCESS_KWARGS)
+    subprocess.run(CMD_PREFIX + ['-Snj', json.dumps(SSR_SUB)], **SUBPROCESS_KWARGS)
+    process = subprocess.run(CMD_PREFIX + ['-Sl'], **SUBPROCESS_KWARGS)
     assert process.stdout.count('name: test') >= 2
 
 
 @init_sub_table
 def test_list_all_sub_with_a():
-    subprocess.run(CMD_PREFIX + ['sub', 'a', '-j', json.dumps(SSR_SUB)], **SUBPROCESS_KWARGS)
-    subprocess.run(CMD_PREFIX + ['sub', 'a', '-j', json.dumps(SSR_SUB)], **SUBPROCESS_KWARGS)
-    process = subprocess.run(CMD_PREFIX + ['sub', 'l', '-a'], **SUBPROCESS_KWARGS)
+    subprocess.run(CMD_PREFIX + ['-Snj', json.dumps(SSR_SUB)], **SUBPROCESS_KWARGS)
+    subprocess.run(CMD_PREFIX + ['-Snj', json.dumps(SSR_SUB)], **SUBPROCESS_KWARGS)
+    process = subprocess.run(CMD_PREFIX + ['-Sla'], **SUBPROCESS_KWARGS)
     assert process.stdout.count('name: test') >= 2
 
 
@@ -74,8 +74,8 @@ def test_edit_sub():
 
 @init_sub_table
 def test_delete_sub():
-    subprocess.run(CMD_PREFIX + ['sub', 'a', '-j', json.dumps(SSR_SUB)], **SUBPROCESS_KWARGS)
-    subprocess.run(CMD_PREFIX + ['sub', 'd', '-c', '1'], **SUBPROCESS_KWARGS)
+    subprocess.run(CMD_PREFIX + ['-Snj', json.dumps(SSR_SUB)], **SUBPROCESS_KWARGS)
+    subprocess.run(CMD_PREFIX + ['-Sdc', '1'], **SUBPROCESS_KWARGS)
     cursor = db.cursor()
     query_result = cursor.execute("SELECT COUNT(id) FROM ssrsub WHERE name = 'test'").fetchone()
     assert query_result[0] == 0
@@ -83,9 +83,9 @@ def test_delete_sub():
 
 @init_sub_table
 def test_delete_all_sub():
-    subprocess.run(CMD_PREFIX + ['sub', 'a', '-j', json.dumps(SSR_SUB)], **SUBPROCESS_KWARGS)
-    subprocess.run(CMD_PREFIX + ['sub', 'a', '-j', json.dumps(SSR_SUB)], **SUBPROCESS_KWARGS)
-    subprocess.run(CMD_PREFIX + ['sub', 'd', '-a'], **SUBPROCESS_KWARGS)
+    subprocess.run(CMD_PREFIX + ['-Snj', json.dumps(SSR_SUB)], **SUBPROCESS_KWARGS)
+    subprocess.run(CMD_PREFIX + ['-Snj', json.dumps(SSR_SUB)], **SUBPROCESS_KWARGS)
+    subprocess.run(CMD_PREFIX + ['-Sda'], **SUBPROCESS_KWARGS)
     cursor = db.cursor()
     query_result = cursor.execute("SELECT COUNT(id) FROM ssrsub WHERE name = 'test'").fetchone()
     assert query_result[0] == 0
@@ -93,9 +93,9 @@ def test_delete_all_sub():
 
 @init_sub_table
 def test_delete_sub_without_info():
-    subprocess.run(CMD_PREFIX + ['sub', 'a', '-j', json.dumps(SSR_SUB)], **SUBPROCESS_KWARGS)
+    subprocess.run(CMD_PREFIX + ['-Snj', json.dumps(SSR_SUB)], **SUBPROCESS_KWARGS)
     with pytest.raises(subprocess.CalledProcessError):
-        subprocess.run(CMD_PREFIX + ['sub', 'd'], **SUBPROCESS_KWARGS)
+        subprocess.run(CMD_PREFIX + ['-Sd'], **SUBPROCESS_KWARGS)
     cursor = db.cursor()
     query_result = cursor.execute("SELECT COUNT(id) FROM ssrsub WHERE name = 'test'").fetchone()
     assert query_result[0] == 1
@@ -103,8 +103,8 @@ def test_delete_sub_without_info():
 
 @init_sub_table
 def test_update_some_sub():
-    subprocess.run(CMD_PREFIX + ['sub', 'a', '-j', json.dumps(LOCAL_TEST_SSR_SUB)], **SUBPROCESS_KWARGS)
-    subprocess.run(CMD_PREFIX + ['sub', 'u', '-c', '1'], **SUBPROCESS_KWARGS)
+    subprocess.run(CMD_PREFIX + ['-Snj', json.dumps(LOCAL_TEST_SSR_SUB)], **SUBPROCESS_KWARGS)
+    subprocess.run(CMD_PREFIX + ['-Suc', '1'], **SUBPROCESS_KWARGS)
     cursor = db.cursor()
     query_result = cursor.execute("SELECT server, server_port FROM ssrconf WHERE sub_id = 1").fetchone()
     assert query_result == ('::1', 30000)
@@ -112,9 +112,9 @@ def test_update_some_sub():
 
 @init_sub_table
 def test_update_all_sub():
-    subprocess.run(CMD_PREFIX + ['sub', 'a', '-j', json.dumps(LOCAL_TEST_SSR_SUB)], **SUBPROCESS_KWARGS)
-    subprocess.run(CMD_PREFIX + ['sub', 'a', '-j', json.dumps(LOCAL_TEST_SSR_SUB)], **SUBPROCESS_KWARGS)
-    subprocess.run(CMD_PREFIX + ['sub', 'u'], **SUBPROCESS_KWARGS)
+    subprocess.run(CMD_PREFIX + ['-Snj', json.dumps(LOCAL_TEST_SSR_SUB)], **SUBPROCESS_KWARGS)
+    subprocess.run(CMD_PREFIX + ['-Snj', json.dumps(LOCAL_TEST_SSR_SUB)], **SUBPROCESS_KWARGS)
+    subprocess.run(CMD_PREFIX + ['-Su'], **SUBPROCESS_KWARGS)
     cursor = db.cursor()
     query_result = cursor.execute("SELECT server, server_port FROM ssrconf WHERE sub_id = 1").fetchone()
     assert query_result == ('::1', 30000)
@@ -124,9 +124,9 @@ def test_update_all_sub():
 
 @init_sub_table
 def test_update_all_sub_with_a():
-    subprocess.run(CMD_PREFIX + ['sub', 'a', '-j', json.dumps(LOCAL_TEST_SSR_SUB)], **SUBPROCESS_KWARGS)
-    subprocess.run(CMD_PREFIX + ['sub', 'a', '-j', json.dumps(LOCAL_TEST_SSR_SUB)], **SUBPROCESS_KWARGS)
-    subprocess.run(CMD_PREFIX + ['sub', 'u', '-a'], **SUBPROCESS_KWARGS)
+    subprocess.run(CMD_PREFIX + ['-Snj', json.dumps(LOCAL_TEST_SSR_SUB)], **SUBPROCESS_KWARGS)
+    subprocess.run(CMD_PREFIX + ['-Snj', json.dumps(LOCAL_TEST_SSR_SUB)], **SUBPROCESS_KWARGS)
+    subprocess.run(CMD_PREFIX + ['-Sua'], **SUBPROCESS_KWARGS)
     cursor = db.cursor()
     query_result = cursor.execute("SELECT server, server_port FROM ssrconf WHERE sub_id = 1").fetchone()
     assert query_result == ('::1', 30000)
@@ -135,13 +135,13 @@ def test_update_all_sub_with_a():
 
 
 def test_omit_current_in_sub_list():
-    subprocess.run(CMD_PREFIX + ['sub', 'l'], **SUBPROCESS_KWARGS)
+    subprocess.run(CMD_PREFIX + ['-Sl'], **SUBPROCESS_KWARGS)
 
 
 @init_sub_table
 def test_update_sub_with_proxies():
-    subprocess.run(CMD_PREFIX + ['sub', 'a', '-j', json.dumps(LOCAL_TEST_SSR_SUB)], **SUBPROCESS_KWARGS)
-    subprocess.run(CMD_PREFIX + ['sub', 'u', '-a', '-p', '{"http": "http://127.0.0.1:8002"}'], **SUBPROCESS_KWARGS)
+    subprocess.run(CMD_PREFIX + ['-Snj', json.dumps(LOCAL_TEST_SSR_SUB)], **SUBPROCESS_KWARGS)
+    subprocess.run(CMD_PREFIX + ['-Suap', '{"http": "http://127.0.0.1:8002"}'], **SUBPROCESS_KWARGS)
     cursor = db.cursor()
     query_result = cursor.execute("SELECT server, server_port FROM ssrconf WHERE sub_id = 1").fetchone()
     assert query_result == ('::1', 30000)

@@ -16,7 +16,7 @@ before_install:
   - chmod +x docker-compose
   - sudo mv docker-compose /usr/local/bin/docker-compose
 install:
-  - find requirements -name '*requirements.txt' -exec pip install -r '{}' \;
+  - pip install -r requirements.txt
 before_script:
   # Revert alpine sources in dockerfile
   - find docker -name Dockerfile -exec sed -i /mirrors.ustc.edu.cn/d '{}' \;

@@ -1,0 +1,8 @@
+# reqs
+peewee
+requests
+xdg
+
+# test_reqs
+pytest
+twisted

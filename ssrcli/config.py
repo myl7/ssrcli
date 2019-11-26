@@ -6,19 +6,15 @@ import xdg
 from . import __version__
 from .log import logger
 
-APP_CONFIG_SUFFIX = pathlib.Path('ssr/ssrcli-config.json')
-SSR_CONFIG_SUFFIX = pathlib.Path('ssr/config.json')
+APP_CONFIG_SUFFIX = pathlib.Path('ssrcli/ssrcli-config.json')
+SSR_CONFIG_SUFFIX = pathlib.Path('ssrcli/ssr-config.json')
 
 
 class DefaultConfig:
     VERSION = __version__
-    DB_PATH = str(xdg.XDG_DATA_HOME / 'ssr' / 'data.sqlite3')
+    DB_PATH = str(xdg.XDG_DATA_HOME / 'ssrcli' / 'data.sqlite3')
     SSR_CONF_PATH = str(xdg.XDG_CONFIG_HOME / SSR_CONFIG_SUFFIX)
-    SSR_CONF_EXTRA_FIELDS = {
-        "local_address": "0.0.0.0",
-        "local_port": 1080,
-        "timeout": 300,
-    }
+    SSR_CONF_EXTRA_FIELDS = dict(local_address='0.0.0.0', local_port=1080, timeout=300)
 
 
 class Config(DefaultConfig):

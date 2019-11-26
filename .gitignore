@@ -129,4 +129,4 @@ dmypy.json
 .idea/
 
 ### Test files
-tests/ssr/*
+tests/ssrcli/**

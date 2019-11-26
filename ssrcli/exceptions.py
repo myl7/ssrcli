@@ -3,10 +3,6 @@ class SsrcliException(Exception):
         self.kwargs = kwargs
 
 
-class InvalidSsrUrl(SsrcliException):
-    pass
-
-
 class RequireMoreArgument(SsrcliException):
     pass
 
@@ -15,5 +11,9 @@ class InvalidArgument(SsrcliException):
     pass
 
 
-class NoSuchOperation(SsrcliException):
+class NoOperation(SsrcliException):
+    pass
+
+
+class InvalidSsrUrl(SsrcliException):
     pass
