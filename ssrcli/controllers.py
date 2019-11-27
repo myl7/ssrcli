@@ -2,18 +2,23 @@ import json
 
 from . import managers
 from . import exceptions
+from .ssr import SsrApp
 
 
 class AppController:
     def run(self, arg_dict: dict):
         if arg_dict['conf']:
             self._run_with_conf(arg_dict)
+
         elif arg_dict['sub']:
             self._run_with_sub(arg_dict)
-        elif arg_dict['app']:
-            # self._run_with_app(arg_dict)  # TODO
-            raise exceptions.RequireMoreArgument(arg='target')
+
         else:
+            for k in ['install', 'remove', 'test', 'on', 'off', 'restart', 'status']:
+                if arg_dict[k]:
+                    getattr(SsrApp(), k)()
+                    return
+
             raise exceptions.RequireMoreArgument(arg='target')
 
     def _run_with_conf(self, arg_dict: dict):
@@ -23,6 +28,7 @@ class AppController:
         for k in ['ls', 'new', 'del', 'edit', 'use']:
             if arg_dict[k]:
                 action = k
+                break
         if not action:
             raise exceptions.RequireMoreArgument(arg='action')
 
@@ -67,6 +73,7 @@ class AppController:
         for k in ['ls', 'new', 'del', 'edit', 'update']:
             if arg_dict[k]:
                 action = k
+                break
         if not action:
             raise exceptions.RequireMoreArgument(arg='action')
 

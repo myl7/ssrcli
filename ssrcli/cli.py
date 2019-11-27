@@ -16,9 +16,16 @@ class AppCli:
         self.parser.add_argument('-v', '--verbose', action='store_true', help='show verbose information')
         self.parser.add_argument('-q', '--quiet', action='store_true', help='show concise information')  # TODO
 
+        self.parser.add_argument('--install', action='store_true', help='install SSR')
+        self.parser.add_argument('--remove', action='store_true', help='remove SSR')
+        self.parser.add_argument('--test', action='store_true', help='test SSR integrity')
+        self.parser.add_argument('-O', '--on', action='store_true', help='start SSR')
+        self.parser.add_argument('-F', '--off', action='store_true', help='stop SSR')
+        self.parser.add_argument('-R', '--restart', action='store_true', help='restart SSR')
+        self.parser.add_argument('-T', '--status', action='store_true', help='check SSR status')
+
         self.parser.add_argument('-C', '--conf', action='store_true', help='manage SSR configuration')
         self.parser.add_argument('-S', '--sub', action='store_true', help='manage SSR subscription')
-        self.parser.add_argument('-A', '--app', action='store_true', help='manage ssrcli app configuration')  # TODO
 
         self.parser.add_argument('-l', '--ls', action='store_true', help='list one or some')
         self.parser.add_argument('-n', '--new', action='store_true', help='add new one')
@@ -31,7 +38,7 @@ class AppCli:
         self.parser.add_argument('-c', '--ids', action='append', type=int, help='choose ids')
         self.parser.add_argument('-r', '--current', action='store_true', help='show current configuration')
         self.parser.add_argument('-p', '--proxies', help='used json-format requests-like proxies to update')
-        self.parser.add_argument('-i', '--url', help='give SSR share url')
+        self.parser.add_argument('-i', '--url', help='give SSR share url')  # TODO: Tests
         self.parser.add_argument('-j', '--json', help='give json-format information')
         self.parser.add_argument('-f', '--file', help='give file path')
 

@@ -11,9 +11,9 @@ class InvalidArgument(SsrcliException):
     pass
 
 
-class NoOperation(SsrcliException):
+class InvalidSsrUrl(SsrcliException):
     pass
 
 
-class InvalidSsrUrl(SsrcliException):
+class RequireGit(SsrcliException):
     pass
