@@ -14,7 +14,7 @@ class DefaultConfig:
     VERSION = __version__
     DB_PATH = str(xdg.XDG_DATA_HOME / 'ssrcli' / 'data.sqlite3')
     SSR_CONF_PATH = str(xdg.XDG_CONFIG_HOME / SSR_CONFIG_SUFFIX)
-    SSR_APP_PATH = str(xdg.XDG_DATA_HOME / 'ssrcli' / 'shadowsocksr')
+    SSR_APP_PATH = str(xdg.XDG_DATA_HOME / 'shadowsocksr')
     SSR_CONF_EXTRA_FIELDS = dict(local_address='0.0.0.0', local_port=1080, timeout=300)
 
 

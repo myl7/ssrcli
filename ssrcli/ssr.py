@@ -87,7 +87,7 @@ class SsrApp:  # TODO: Tests, multi-instance
 
     def on(self):
         print(SsrConfManager().current())
-        task = subprocess.Popen(['python', '-m', 'shadowsocks', '-c', self.config_path, 'start'],
+        task = subprocess.Popen(['python', '-m', 'shadowsocks.local', '-c', self.config_path, 'start'],
                                 cwd=config.SSR_APP_PATH)
         with open(xdg.XDG_DATA_HOME / 'ssrcli' / 'ssr.pid', 'a') as f:
             print(task.pid, file=f)
