@@ -1,8 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 
-INSTALL_DIR='~/.local/share/ssrcli'
-SCRIPT_PATH='~/.local/bin/ssrcli'
+INSTALL_DIR="$HOME/.local/share/ssrcli"
+SCRIPT_PATH="$HOME/.local/bin/ssrcli"
 
 git clone https://github.com/myl7/ssrcli --depth=1 ${INSTALL_DIR}
 cd ${INSTALL_DIR}
