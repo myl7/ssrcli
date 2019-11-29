@@ -8,4 +8,10 @@ install:
 script:
   - cd tests
   - ./test.sh
+deploy:
+  provider: pypi
+  user: "__token__"
+  password: ${PYPI_TOKEN}
+  on:
+    tags: true
 cache: pip
