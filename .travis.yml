@@ -5,8 +5,10 @@ python:
   - "3.6"
 install:
   - pip install -r requirements.txt
+  - pip install codecov
 script:
   - (cd tests && ./test.sh)
+cache: pip
 deploy:
   provider: pypi
   user: "__token__"
@@ -14,4 +16,5 @@ deploy:
   on:
     tags: true
     python: 3.7
-cache: pip
+after_success:
+  - (cd tests && codecov)

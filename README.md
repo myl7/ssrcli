@@ -1,5 +1,9 @@
 # ssrcli
 
+[![Build Status](https://travis-ci.org/myl7/ssrcli.svg?branch=master)](https://travis-ci.org/myl7/ssrcli)
+[![codecov.io Code Coverage](https://codecov.io/gh/myl7/ssrcli/branch/master/graph/badge.svg)](https://codecov.io/gh/myl7/ssrcli)
+[![Known Vulnerabilities](https://snyk.io/test/github/myl7/ssrcli/badge.svg?targetFile=requirements.txt)](https://snyk.io/test/github/myl7/ssrcli?targetFile=requirements.txt)
+
 SSR client on Linux with command line interface
 
 ## Features
