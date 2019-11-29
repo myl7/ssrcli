@@ -7,3 +7,4 @@ xdg
 pytest
 twisted
 pytest-ordering
+pytest-cov

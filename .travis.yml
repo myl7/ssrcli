@@ -6,8 +6,7 @@ python:
 install:
   - pip install -r requirements.txt
 script:
-  - cd tests
-  - ./test.sh
+  - (cd tests && ./test.sh)
 deploy:
   provider: pypi
   user: "__token__"
