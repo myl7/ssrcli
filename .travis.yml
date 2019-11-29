@@ -13,4 +13,5 @@ deploy:
   password: ${PYPI_TOKEN}
   on:
     tags: true
+    python: 3.7
 cache: pip
