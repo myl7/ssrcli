@@ -6,6 +6,10 @@ import xdg
 from . import __version__
 from .log import logger
 
+for path in [xdg.XDG_DATA_HOME, xdg.XDG_CONFIG_HOME]:
+    if not (path / 'ssrcli').exists():
+        (path / 'ssrcli').mkdir()
+
 APP_CONFIG_SUFFIX = pathlib.Path('ssrcli/ssrcli-config.json')
 SSR_CONFIG_SUFFIX = pathlib.Path('ssrcli/ssr-config.json')
 

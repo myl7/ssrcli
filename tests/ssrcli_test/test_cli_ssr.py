@@ -43,7 +43,7 @@ def test_remove_ssr():
 
 def _test_ssr_status(status: bool):
     task = subprocess.run(CMD_PREFIX + ['-T'], **SUBPROCESS_KWARGS)
-    assert 'on' if status else 'off' in task.stdout
+    assert 'SSR: {}' if status else 'off' in task.stdout.strip()
 
 
 @pytest.mark.second

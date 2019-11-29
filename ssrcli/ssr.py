@@ -126,7 +126,7 @@ class SsrApp:
     def status(self) -> bool:
         cmd = ['[', '!', '-z', 'lsof', '-i:{}'.format(config.SSR_LOCAL_PORT), ']', '||', 'false']
         try:
-            subprocess.run(cmd, check=True)
+            subprocess.run(cmd, check=True, shell=True)
         except subprocess.CalledProcessError:
             return False
         return True
