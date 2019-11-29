@@ -9,7 +9,7 @@ with open('ssrcli/__init__.py') as f:
 
 reqs = ['peewee', 'requests', 'xdg']
 
-test_reqs = ['pytest', 'twisted', 'pytest-ordering']
+test_reqs = ['pytest', 'twisted', 'pytest-ordering', 'pytest-cov']
 
 setup(
     name='ssrcli',

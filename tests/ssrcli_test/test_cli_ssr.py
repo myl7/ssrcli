@@ -6,7 +6,7 @@ from time import sleep
 
 import pytest
 
-from .shared import CMD_PREFIX, SUBPROCESS_KWARGS, SSR_CONF
+from .shared import CMD_PREFIX, SUBPROCESS_KWARGS, SSR_CONF, VENV_ENV
 from ssrcli.config import config
 
 
@@ -43,45 +43,31 @@ def test_remove_ssr():
 
 def _test_ssr_status(status: bool):
     task = subprocess.run(CMD_PREFIX + ['-T'], **SUBPROCESS_KWARGS)
-    assert 'SSR: {}' if status else 'off' in task.stdout.strip()
+    assert 'SSR: {}'.format('on' if status else 'off') == task.stdout.strip()
+
+
+# As we use Popen to see unblockedly run commands, we should sleep enough time to wait for SSR to make the action.
+# 0.5s is OK on my laptop, and if failed on your device, set the below variable larger.
+SLEEP_AFTER_POPEN = 0.5
 
 
 @pytest.mark.second
 def test_on_off_restart_status_ssr_with_multi():
-    # On, off and restart
     _test_ssr_status(False)
-    subprocess.run(CMD_PREFIX + ['-O'], **SUBPROCESS_KWARGS)
-    sleep(0.1)
+    subprocess.Popen(CMD_PREFIX + ['-O'], env=VENV_ENV)
+    sleep(SLEEP_AFTER_POPEN)
+    subprocess.Popen(CMD_PREFIX + ['-O'], env=VENV_ENV)
     _test_ssr_status(True)
-    subprocess.run(CMD_PREFIX + ['-F'], **SUBPROCESS_KWARGS)
-    sleep(0.1)
+    subprocess.Popen(CMD_PREFIX + ['-F'], env=VENV_ENV)
+    sleep(SLEEP_AFTER_POPEN)
+    subprocess.Popen(CMD_PREFIX + ['-F'], env=VENV_ENV)
     _test_ssr_status(False)
-    subprocess.run(CMD_PREFIX + ['-R'], **SUBPROCESS_KWARGS)
-    sleep(0.1)
+    subprocess.Popen(CMD_PREFIX + ['-R'], env=VENV_ENV)
+    sleep(2 * SLEEP_AFTER_POPEN)  # As restart is simply a wrapper of off then on
     _test_ssr_status(True)
-    subprocess.run(CMD_PREFIX + ['-R'], **SUBPROCESS_KWARGS)
-    sleep(0.1)
+    subprocess.Popen(CMD_PREFIX + ['-R'], env=VENV_ENV)
+    sleep(2 * SLEEP_AFTER_POPEN)
     _test_ssr_status(True)
-    subprocess.run(CMD_PREFIX + ['-R'], **SUBPROCESS_KWARGS)
-    _test_ssr_status(True)
-    subprocess.run(CMD_PREFIX + ['-F'], **SUBPROCESS_KWARGS)
-
-    # Multi ops should be handled
+    subprocess.Popen(CMD_PREFIX + ['-F'], env=VENV_ENV)
+    sleep(SLEEP_AFTER_POPEN)
     _test_ssr_status(False)
-    subprocess.run(CMD_PREFIX + ['-O'], **SUBPROCESS_KWARGS)
-    subprocess.run(CMD_PREFIX + ['-O'], **SUBPROCESS_KWARGS)
-    subprocess.run(CMD_PREFIX + ['-O'], **SUBPROCESS_KWARGS)
-    subprocess.run(CMD_PREFIX + ['-O'], **SUBPROCESS_KWARGS)
-    _test_ssr_status(True)
-    subprocess.run(CMD_PREFIX + ['-F'], **SUBPROCESS_KWARGS)
-    _test_ssr_status(False)
-
-    subprocess.run(CMD_PREFIX + ['-O'], **SUBPROCESS_KWARGS)
-    _test_ssr_status(True)
-    subprocess.run(CMD_PREFIX + ['-F'], **SUBPROCESS_KWARGS)
-    subprocess.run(CMD_PREFIX + ['-F'], **SUBPROCESS_KWARGS)
-    subprocess.run(CMD_PREFIX + ['-F'], **SUBPROCESS_KWARGS)
-    subprocess.run(CMD_PREFIX + ['-F'], **SUBPROCESS_KWARGS)
-    _test_ssr_status(False)
-    subprocess.run(CMD_PREFIX + ['-O'], **SUBPROCESS_KWARGS)
-    _test_ssr_status(True)

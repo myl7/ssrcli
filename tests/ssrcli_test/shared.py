@@ -6,15 +6,13 @@ import subprocess
 from . import pkg_dir
 
 SSR_CONF = {
-    'url': (
-        'ssr://'
-        'OjoxOjMwMDAwOm5vbmU6dGVzdDpwbGFpbjpkR1Z6ZEEvP29iZnNwYXJhbT'
-        '0mcHJvdG9wYXJhbT0mcmVtYXJrcz1kR1Z6ZEEmZ3JvdXA9ZEdWemRB'),
+    'url': ('ssr://OjoxOjMwMDAwOm9yaWdpbjpub25lOnBsYWluOmRHVnpkQS8_b2Jmc3BhcmFtP'
+            'SZwcm90b3BhcmFtPSZyZW1hcmtzPWRHVnpkQSZncm91cD1kR1Z6ZEE'),
     'dict': {
         'server': '::1',
         'server_port': 30000,
-        'protocol': 'none',
-        'method': 'test',
+        'protocol': 'origin',
+        'method': 'none',
         'obfs': 'plain',
         'password': 'test',
         'obfs_param': '',
@@ -25,8 +23,8 @@ SSR_CONF = {
     'config_dict': {
         'server': '::1',
         'server_port': 30000,
-        'protocol': 'none',
-        'method': 'test',
+        'protocol': 'origin',
+        'method': 'none',
         'obfs': 'plain',
         'password': 'test',
         'obfs_param': '',
@@ -56,7 +54,7 @@ if sys.version_info[2] >= 7:
         'universal_newlines': True,
         'stdout': subprocess.PIPE,
         'stderr': subprocess.PIPE,
-        'timeout': 60,
+        'timeout': 10,
     }
 else:
     SUBPROCESS_KWARGS = {
@@ -64,7 +62,7 @@ else:
         'check': True,
         'text': True,
         'capture_output': True,
-        'timeout': 60,
+        'timeout': 10,
     }
 
 ID_REGEX = re.compile(r'^id: (\d+)$', flags=re.MULTILINE)

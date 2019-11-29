@@ -61,8 +61,7 @@ class SsrApp:
             return
         try:
             subprocess.run(['git', 'clone', 'https://github.com/shadowsocksr-backup/shadowsocksr', '-b', 'manyuser',
-                            '--depth=1', config.SSR_APP_PATH], check=True, stdout=subprocess.PIPE,
-                           stderr=subprocess.PIPE)
+                            '--depth=1', config.SSR_APP_PATH], check=True)
         except subprocess.CalledProcessError:
             print('Running git clone failed. Have you installed git?')
 
@@ -88,29 +87,25 @@ class SsrApp:
         return ok
 
     def on(self):
-        try:
-            with open(xdg.XDG_DATA_HOME / 'ssrcli' / 'ssr.pid', 'r') as f:
-                if f.read(1) and self.status():
-                    print('SSR has been launched: PID {}'.format(f.read().strip()))
-                    return
-        except FileNotFoundError:
-            pass
-
+        if self.status():
+            print('SSR has been launched')
+            return
         print(SsrConfManager().current())
         task = subprocess.Popen(['python', '-m', 'shadowsocks.local', '-c', self.config_path, 'start'],
-                                cwd=config.SSR_APP_PATH)
+                                cwd=config.SSR_APP_PATH)  # shadowsocksr has no deps so being without env=... is OK
         with open(xdg.XDG_DATA_HOME / 'ssrcli' / 'ssr.pid', 'w') as f:
             print(task.pid, file=f)
 
     def off(self):
         if not self.status():
+            print('SSR has already been off')
             return
         with open(xdg.XDG_DATA_HOME / 'ssrcli' / 'ssr.pid', 'r') as f:
             content = f.read().strip()
         if content.isdigit():
             pid = int(content)
             try:
-                subprocess.run(['kill', str(pid)], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                subprocess.run(['kill', str(pid)], check=True)
             except subprocess.CalledProcessError:
                 print('Running kill failed: pid {}'.format(pid))
                 return
@@ -124,9 +119,8 @@ class SsrApp:
         self.on()
 
     def status(self) -> bool:
-        cmd = ['[', '!', '-z', 'lsof', '-i:{}'.format(config.SSR_LOCAL_PORT), ']', '||', 'false']
         try:
-            subprocess.run(cmd, check=True, shell=True)
+            subprocess.run(['lsof', '-i:{}'.format(config.SSR_LOCAL_PORT)], check=True, stdout=subprocess.DEVNULL)
         except subprocess.CalledProcessError:
             return False
         return True
