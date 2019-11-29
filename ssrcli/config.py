@@ -11,11 +11,18 @@ SSR_CONFIG_SUFFIX = pathlib.Path('ssrcli/ssr-config.json')
 
 
 class DefaultConfig:
-    VERSION = __version__
+    VERSION: str = __version__
     DB_PATH = str(xdg.XDG_DATA_HOME / 'ssrcli' / 'data.sqlite3')
+    UPDATE_TIMEOUT = 10
+    UPDATE_RETRY = 5
     SSR_CONF_PATH = str(xdg.XDG_CONFIG_HOME / SSR_CONFIG_SUFFIX)
     SSR_APP_PATH = str(xdg.XDG_DATA_HOME / 'shadowsocksr')
-    SSR_CONF_EXTRA_FIELDS = dict(local_address='0.0.0.0', local_port=1080, timeout=300)
+    SSR_LOCAL_PORT = 1080
+    SSR_CONF_EXTRA_FIELDS = {
+        'local_address': '127.0.0.1',
+        'local_port': SSR_LOCAL_PORT,
+        'timeout': 300,
+    }
 
 
 class Config(DefaultConfig):
@@ -36,7 +43,7 @@ class Config(DefaultConfig):
                         logger.warn('Config key {} is not supported'.format(k))
                     else:
                         setattr(self, k, v)
-            break
+                break
 
 
 config = Config()

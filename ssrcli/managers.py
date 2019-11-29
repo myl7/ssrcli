@@ -3,6 +3,7 @@ import asyncio
 from typing import Optional, Iterable, List, AnyStr, Dict, Union
 
 import requests
+from requests.adapters import HTTPAdapter
 import peewee
 
 from .config import config
@@ -68,7 +69,9 @@ class SsrConfManager(Manager):
 
 async def _update_sub(url: str, c_id: Optional[int] = None, proxies: Optional[Union[bool, Dict[str, str]]] = None):
     proxies = proxies if proxies else None
-    content = requests.get(url, proxies=proxies).content.decode('utf-8').strip()
+    s = requests.Session()
+    s.mount('http://stackoverflow.com', HTTPAdapter(max_retries=config.UPDATE_RETRY))
+    content = s.get(url, proxies=proxies, timeout=config.UPDATE_TIMEOUT).content.decode('utf-8').strip()
     ssr_urls = b64_decode_ssr(content).splitlines()
     return map(ssr_url_to_dict, ssr_urls), c_id
 

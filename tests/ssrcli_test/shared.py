@@ -1,4 +1,6 @@
+import re
 import os
+import sys
 import subprocess
 
 from . import pkg_dir
@@ -47,12 +49,22 @@ else:
     _venv_env['PYTHONPATH'] = str(pkg_dir)
 VENV_ENV = _venv_env
 
-# TODO(myl7): `text` and `capture_output` are more understandable, but not available in python3.6
-SUBPROCESS_KWARGS = {
-    'env': VENV_ENV,
-    'check': True,
-    'universal_newlines': True,
-    'stdout': subprocess.PIPE,
-    'stderr': subprocess.PIPE,
-    'timeout': 2,
-}
+if sys.version_info[2] >= 7:
+    SUBPROCESS_KWARGS = {
+        'env': VENV_ENV,
+        'check': True,
+        'universal_newlines': True,
+        'stdout': subprocess.PIPE,
+        'stderr': subprocess.PIPE,
+        'timeout': 60,
+    }
+else:
+    SUBPROCESS_KWARGS = {
+        'env': VENV_ENV,
+        'check': True,
+        'text': True,
+        'capture_output': True,
+        'timeout': 60,
+    }
+
+ID_REGEX = re.compile(r'^id: (\d+)$', flags=re.MULTILINE)

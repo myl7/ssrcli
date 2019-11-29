@@ -11,7 +11,3 @@ trim_trailing_whitespace = true
 indent_size = 4
 tab_width = 4
 insert_final_newline = true
-
-[{.eslintrc,.babelrc,jest.config,.stylelintrc,*.bowerrc,*.jsb3,*.jsb2,*.json,.condarc,*.yml,*.yaml}]
-indent_size = 2
-tab_width = 2

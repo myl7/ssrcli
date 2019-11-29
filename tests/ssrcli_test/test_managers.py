@@ -1,5 +1,4 @@
 from .shared import SSR_CONF
-
 from ssrcli.utils import b64_encode_ssr, b64_decode_ssr, ssr_url_to_dict, conf_to_ssr_url, conf_to_json
 from ssrcli.models import SsrConf
 

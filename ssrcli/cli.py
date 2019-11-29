@@ -12,7 +12,7 @@ class AppCli:
 
     def _build(self):
         self.parser = argparse.ArgumentParser(prog='ssrcli', description='SSR client with shell interface')
-        self.parser.add_argument('-V', '--version', action='version', version='%(prog) {}'.format(config.VERSION))
+        self.parser.add_argument('-V', '--version', action='version', version='%(prog)s {}'.format(config.VERSION))
         self.parser.add_argument('-v', '--verbose', action='store_true', help='show verbose information')
         self.parser.add_argument('-q', '--quiet', action='store_true', help='show concise information')  # TODO
 
@@ -38,7 +38,7 @@ class AppCli:
         self.parser.add_argument('-c', '--ids', action='append', type=int, help='choose ids')
         self.parser.add_argument('-r', '--current', action='store_true', help='show current configuration')
         self.parser.add_argument('-p', '--proxies', help='used json-format requests-like proxies to update')
-        self.parser.add_argument('-i', '--url', help='give SSR share url')  # TODO: Tests
+        self.parser.add_argument('-w', '--url', help='give SSR share url')
         self.parser.add_argument('-j', '--json', help='give json-format information')
         self.parser.add_argument('-f', '--file', help='give file path')
 

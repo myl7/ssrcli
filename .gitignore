@@ -131,3 +131,4 @@ dmypy.json
 ### Test files
 tests/ssrcli/*
 !.gitkeep
+tests/shadowsocksr/

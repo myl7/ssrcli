@@ -6,3 +6,4 @@ xdg
 # test_reqs
 pytest
 twisted
+pytest-ordering

@@ -3,15 +3,15 @@ import subprocess
 import shutil
 import glob
 import hashlib
+import pathlib
 
 import xdg
 
 from .config import config
-from .log import logger
 from .managers import SsrConfManager
 
 
-class SsrApp:  # TODO: Tests, multi-instance
+class SsrApp:
     SSR_FILE_MD5 = {
         'obfsplugin/verify.py': '4769b5a8e3e6012a5da57533ce2c62b8',
         'obfsplugin/__init__.py': '7ff9a30b272bb2077d229a3d0b12c86a',
@@ -56,36 +56,46 @@ class SsrApp:  # TODO: Tests, multi-instance
 
     @staticmethod
     def install():
+        if pathlib.Path(config.SSR_APP_PATH).exists():
+            print('The target folder already exists: {}'.format(config.SSR_APP_PATH))
+            return
         try:
             subprocess.run(['git', 'clone', 'https://github.com/shadowsocksr-backup/shadowsocksr', '-b', 'manyuser',
                             '--depth=1', config.SSR_APP_PATH], check=True, stdout=subprocess.PIPE,
                            stderr=subprocess.PIPE)
         except subprocess.CalledProcessError:
-            logger.error('Running git clone failed. Have you installed git?')
+            print('Running git clone failed. Have you installed git?')
 
     @staticmethod
     def remove():
         shutil.rmtree(config.SSR_APP_PATH, ignore_errors=True)
 
     @staticmethod
-    def test():
+    def test() -> bool:
         files = glob.glob(os.path.join(config.SSR_APP_PATH, 'shadowsocks', '**', '*'), recursive=True)
         ok: bool = True
         for file in files:
             key = file[len(os.path.join(config.SSR_APP_PATH, 'shadowsocks')) + 1:]
-            if key in ['obfsplugin', 'crypto']:
-                continue
-            hash_md5 = hashlib.md5()
-            with open(file, "rb") as f:  # TODO: Move to utils
-                for chunk in iter(lambda: f.read(4096), b''):
-                    hash_md5.update(chunk)
-            res = hash_md5.hexdigest()
-            if SsrApp.SSR_FILE_MD5[key] != res:
-                logger.warning('Found {} MD5 different'.format(file))
-                ok = False
+            if key in SsrApp.SSR_FILE_MD5.keys():
+                hash_md5 = hashlib.md5()
+                with open(file, "rb") as f:  # TODO: Move to utils
+                    for chunk in iter(lambda: f.read(4096), b''):
+                        hash_md5.update(chunk)
+                res = hash_md5.hexdigest()
+                if res != SsrApp.SSR_FILE_MD5[key]:
+                    print('Found {} MD5 different'.format(file))
+                    ok = False
         return ok
 
     def on(self):
+        try:
+            with open(xdg.XDG_DATA_HOME / 'ssrcli' / 'ssr.pid', 'r') as f:
+                if f.read(1) and self.status():
+                    print('SSR has been launched: PID {}'.format(f.read().strip()))
+                    return
+        except FileNotFoundError:
+            pass
+
         print(SsrConfManager().current())
         task = subprocess.Popen(['python', '-m', 'shadowsocks.local', '-c', self.config_path, 'start'],
                                 cwd=config.SSR_APP_PATH)
@@ -93,20 +103,30 @@ class SsrApp:  # TODO: Tests, multi-instance
             print(task.pid, file=f)
 
     def off(self):
+        if not self.status():
+            return
         with open(xdg.XDG_DATA_HOME / 'ssrcli' / 'ssr.pid', 'r') as f:
             content = f.read().strip()
-            if content.isnumeric():
-                pid = int(content)
-                try:
-                    subprocess.run(['kill', str(pid)], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                except subprocess.CalledProcessError:
-                    logger.error('Running kill failed: pid {}'.format(pid))
-            else:
-                logger.error('Invalid pid file: {}'.format(xdg.XDG_DATA_HOME / 'ssrcli' / 'ssr.pid'))
+        if content.isdigit():
+            pid = int(content)
+            try:
+                subprocess.run(['kill', str(pid)], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            except subprocess.CalledProcessError:
+                print('Running kill failed: pid {}'.format(pid))
+                return
+            with open(xdg.XDG_DATA_HOME / 'ssrcli' / 'ssr.pid', 'w'):
+                pass
+        else:
+            print('Invalid pid file: {}'.format(xdg.XDG_DATA_HOME / 'ssrcli' / 'ssr.pid'))
 
     def restart(self):
-        self.on()
         self.off()
+        self.on()
 
-    def status(self):
-        pass  # TODO
+    def status(self) -> bool:
+        cmd = ['[', '!', '-z', 'lsof', '-i:{}'.format(config.SSR_LOCAL_PORT), ']', '||', 'false']
+        try:
+            subprocess.run(cmd, check=True)
+        except subprocess.CalledProcessError:
+            return False
+        return True

@@ -13,8 +13,11 @@ class AppController:
         elif arg_dict['sub']:
             self._run_with_sub(arg_dict)
 
+        elif arg_dict['status']:
+            print('SSR: {}'.format('on' if SsrApp().status() else 'off'))
+
         else:
-            for k in ['install', 'remove', 'test', 'on', 'off', 'restart', 'status']:
+            for k in ['install', 'remove', 'test', 'on', 'off', 'restart']:
                 if arg_dict[k]:
                     getattr(SsrApp(), k)()
                     return
