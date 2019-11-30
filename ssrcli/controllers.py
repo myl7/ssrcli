@@ -36,9 +36,10 @@ class AppController:
             raise exceptions.RequireMoreArgument(arg='action')
 
         if action == 'ls':
-            ids = None if arg_dict['all'] else arg_dict.get('ids', None)
-            for model in manager.list(ids, verbose=arg_dict['verbose']):
-                print(model)
+            ids = None if arg_dict['all'] else arg_dict['ids']
+            if not (not arg_dict['all'] and not arg_dict['ids'] and arg_dict['current']):
+                for model in manager.list(ids, verbose=arg_dict['verbose']):
+                    print(model)
             if arg_dict['current']:
                 print('')
                 print('Current:')

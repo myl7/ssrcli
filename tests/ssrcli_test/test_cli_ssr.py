@@ -1,4 +1,3 @@
-import json
 import subprocess
 import pathlib
 import shutil
@@ -6,16 +5,12 @@ from time import sleep
 
 import pytest
 
-from .shared import CMD_PREFIX, SUBPROCESS_KWARGS, SSR_CONF, VENV_ENV
+from .shared import CMD_PREFIX, SUBPROCESS_KWARGS, VENV_ENV
 from ssrcli.config import config
 
 
 @pytest.mark.first
 def test_install_and_test_ssr():
-    # Prepare config
-    with open(config.SSR_CONF_PATH, 'w') as f:
-        json.dump({**SSR_CONF['config_dict'], **config.SSR_CONF_EXTRA_FIELDS}, f)
-
     # Install
     shutil.rmtree(config.SSR_APP_PATH, ignore_errors=True)
     subprocess.run(CMD_PREFIX + ['--install'], **SUBPROCESS_KWARGS)
@@ -46,7 +41,7 @@ def _test_ssr_status(status: bool):
     assert 'SSR: {}'.format('on' if status else 'off') == task.stdout.strip()
 
 
-# As we use Popen to see unblockedly run commands, we should sleep enough time to wait for SSR to make the action.
+# As we use Popen to unblockedly run commands, we should sleep enough time to wait for SSR to make the action.
 # 0.5s is OK on my laptop, and if failed on your device, set the below variable larger.
 SLEEP_AFTER_POPEN = 0.5
 
@@ -63,7 +58,7 @@ def test_on_off_restart_status_ssr_with_multi():
     subprocess.Popen(CMD_PREFIX + ['-F'], env=VENV_ENV)
     _test_ssr_status(False)
     subprocess.Popen(CMD_PREFIX + ['-R'], env=VENV_ENV)
-    sleep(2 * SLEEP_AFTER_POPEN)  # As restart is simply a wrapper of off then on
+    sleep(2 * SLEEP_AFTER_POPEN)  # As restart is simply a wrapper of off and then on
     _test_ssr_status(True)
     subprocess.Popen(CMD_PREFIX + ['-R'], env=VENV_ENV)
     sleep(2 * SLEEP_AFTER_POPEN)

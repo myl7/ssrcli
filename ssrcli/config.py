@@ -42,7 +42,7 @@ class Config(DefaultConfig):
                             xdg_config_dir / APP_CONFIG_SUFFIX))
                 attrs = [attr.upper() for attr in dir(self) if attr[0] != '_']
                 for k, v in config_json.items():
-                    k.upper()
+                    k = k.upper()
                     if k not in attrs:
                         logger.warn('Config key {} is not supported'.format(k))
                     else:
