@@ -16,7 +16,7 @@ SSR_CONFIG_SUFFIX = pathlib.Path('ssrcli/ssr-config.json')
 
 class DefaultConfig:
     VERSION: str = __version__
-    DB_PATH = str(xdg.XDG_DATA_HOME / 'ssrcli' / 'data.sqlite3')
+    DB_PATH = str(xdg.XDG_DATA_HOME / 'ssrcli' / 'db.sqlite3')
     UPDATE_TIMEOUT = 10
     UPDATE_RETRY = 5
     SSR_CONF_PATH = str(xdg.XDG_CONFIG_HOME / SSR_CONFIG_SUFFIX)
@@ -41,6 +41,7 @@ class Config(DefaultConfig):
                         logger.error('Can not parse the json config file located at {}'.format(
                             xdg_config_dir / APP_CONFIG_SUFFIX))
                 attrs = [attr.upper() for attr in dir(self) if attr[0] != '_']
+                attrs.remove('VERSION')
                 for k, v in config_json.items():
                     k = k.upper()
                     if k not in attrs:

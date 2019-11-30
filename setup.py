@@ -7,39 +7,38 @@ with open('README.md') as f:
 with open('ssrcli/__init__.py') as f:
     version = re.search(r'__version__ = \'(.*)\'', f.read()).group(1)
 
-reqs = ['peewee', 'requests', 'xdg']
-
-test_reqs = ['pytest', 'twisted', 'pytest-ordering', 'pytest-cov']
-
 setup(
     name='ssrcli',
-    author='myl',
-    author_email='myl7@gmail.com',
+    author='myl7',
+    author_email='myl7.ustc@gmail.com',
     url='https://github.com/myl7/ssrcli',
-    description='SSR client with shell interface',
-    keywords=['ssr', 'ssrcli'],
+    description='SSR management client with shell interface',
+    keywords=['ssr', 'ssr-client'],
     long_description=readme,
     long_description_content_type='text/markdown',
     version=version,
     packages=['ssrcli'],
     license='MIT',
+    platforms=['Linux'],
     python_requires='>=3.6',
-    install_requires=reqs,
-    tests_require=test_reqs,
+    install_requires=['peewee', 'requests', 'xdg'],
     classifiers=[
+        'Development Status :: 5 - Production/Stable',
         'Environment :: Console',
         'Intended Audience :: End Users/Desktop',
         'License :: OSI Approved :: MIT License',
         'Natural Language :: English',
+        'Operating System :: POSIX :: Linux',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
-        'Operating System :: POSIX :: Linux',
         'Topic :: Internet :: Proxy Servers',
+        'Typing :: Typed',
     ],
     entry_points={
         'console_scripts': [
             'ssrcli = ssrcli.cli:main',
         ],
     },
+    zip_safe=True,
 )
