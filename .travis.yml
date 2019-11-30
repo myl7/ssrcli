@@ -15,6 +15,6 @@ deploy:
   password: ${PYPI_TOKEN}
   on:
     tags: true
-    python: 3.7
+    skip_existing: true
 after_success:
   - (cd tests && codecov)
