@@ -16,7 +16,7 @@ setup(
     author='myl',
     author_email='myl7@gmail.com',
     url='https://github.com/myl7/ssrcli',
-    description='SSR client with shell interface and using Docker to deploy',
+    description='SSR client with shell interface',
     keywords=['ssr', 'ssrcli'],
     long_description=readme,
     long_description_content_type='text/markdown',
